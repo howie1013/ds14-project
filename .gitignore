@@ -26,3 +26,8 @@
 *.exe
 *.out
 *.app
+
+lab/lock_server
+lab/lock_tester
+lab/lock_demo
+lab/rpc/rpctest

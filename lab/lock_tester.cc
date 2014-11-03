@@ -78,7 +78,6 @@ void test1(void)
 void *test2(void *x)
 {
     int i = * (int *) x;
-
     printf ("test2: client %d acquire a release a\n", i);
     lc[i]->acquire(a);
     printf ("test2: client %d acquire done\n", i);

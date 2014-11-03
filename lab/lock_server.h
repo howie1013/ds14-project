@@ -5,6 +5,7 @@
 #define lock_server_h
 
 #include <string>
+#include <map>
 #include <pthread.h>
 #include "lock_protocol.h"
 #include "lock_client.h"
@@ -18,9 +19,9 @@ public:
 
 protected:
     int nacquire;
-    int _locks_s[MAX_LOCK];
-	pthread_mutex_t _locks_m[MAX_LOCK];
+	//pthread_mutex_t _locks_m[MAX_LOCK];
 	pthread_mutex_t _m;
+    std::map<lock_protocol::lockid_t, pthread_mutex_t> _locks_m;
 
 public:
     lock_server();

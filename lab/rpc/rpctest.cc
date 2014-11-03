@@ -95,30 +95,26 @@ void process_mem_usage(double &resident_set)
 // rpcs::reg() decides how to unmarshall by looking
 // at these argument types, so this function definition
 // does what a .x file does in SunRPC.
-int
-srv::handle_22(const std::string a, std::string b, std::string &r)
+int srv::handle_22(const std::string a, std::string b, std::string &r)
 {
     r = a + b;
     return 0;
 }
 
-int
-srv::handle_fast(const int a, int &r)
+int srv::handle_fast(const int a, int &r)
 {
     r = a + 1;
     return 0;
 }
 
-int
-srv::handle_slow(const int a, int &r)
+int srv::handle_slow(const int a, int &r)
 {
     usleep(random() % 5000);
     r = a + 2;
     return 0;
 }
 
-int
-srv::handle_bigrep(const int len, std::string &r)
+int srv::handle_bigrep(const int len, std::string &r)
 {
     r = std::string(len, 'x');
     return 0;
@@ -135,8 +131,7 @@ void startserver()
     server->reg(25, &service, &srv::handle_bigrep);
 }
 
-void
-testmarshall()
+void testmarshall()
 {
     marshall m;
     req_header rh(1, 2, 3, 4, 5);
@@ -168,8 +163,7 @@ testmarshall()
     assert(i1 == i && l1 == l && s1 == s);
 }
 
-void *
-client1(void *xx)
+void *client1(void *xx)
 {
 
     // test concurrency.
@@ -211,8 +205,7 @@ client1(void *xx)
     return 0;
 }
 
-void *
-client2(void *xx)
+void *client2(void *xx)
 {
     int which_cl = ((unsigned long) xx ) % NUM_CL;
 
@@ -233,8 +226,7 @@ client2(void *xx)
     return 0;
 }
 
-void *
-client3(void *xx)
+void *client3(void *xx)
 {
     rpcc *c = (rpcc *) xx;
 
@@ -247,8 +239,7 @@ client3(void *xx)
     return 0;
 }
 
-void *
-client4(void *xx)
+void * client4(void *xx)
 {
     // test garbage collection, view memory consumption.
     double rss, initial, final;
@@ -287,8 +278,7 @@ client4(void *xx)
     return 0;
 }
 
-void
-simple_tests(rpcc *c)
+void simple_tests(rpcc *c)
 {
     printf("simple_tests\n");
     // an RPC call to procedure #22.
@@ -359,8 +349,7 @@ simple_tests(rpcc *c)
     printf("simple_tests OK\n");
 }
 
-void
-concurrent_test(int nt)
+void concurrent_test(int nt)
 {
     // create threads that make lots of calls in parallel,
     // to test thread synchronization for concurrent calls
@@ -383,8 +372,7 @@ concurrent_test(int nt)
     printf(" OK\n");
 }
 
-void
-garbage_collection_test(int nt)
+void garbage_collection_test(int nt)
 {
     // test garbage collection
     int ret;
@@ -405,8 +393,7 @@ garbage_collection_test(int nt)
 }
 
 
-void
-lossy_test()
+void lossy_test()
 {
     int ret;
 
@@ -441,8 +428,7 @@ lossy_test()
     assert(setenv("RPC_LOSSY", "0", 1) == 0);
 }
 
-void
-failure_test()
+void failure_test()
 {
     rpcc *client1;
     rpcc *client = clients[0];
@@ -518,8 +504,7 @@ failure_test()
     printf("failure_test OK\n");
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);

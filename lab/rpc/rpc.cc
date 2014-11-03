@@ -303,7 +303,7 @@ bool rpcc::got_pdu(connection *c, char *b, int sz)
     }
 
     ScopedLock ml(&m_);
-
+    jsl_log(JSL_DBG_3, "rpcc::got_pdu update_xid_rep xid %u\n", h.xid);
     update_xid_rep(h.xid);
 
     if (calls_.find(h.xid) == calls_.end())
@@ -582,8 +582,10 @@ void rpcs::dispatch(djob_t *j)
         }
         break;
     case INPROGRESS: //server is working on this request
+    jsl_log(JSL_DBG_2, "rpcs::dispatch server is working on request %u from %u\n", h.xid, h.clt_nonce);
         break;
     case DONE: //duplicate and we still have the response
+        jsl_log(JSL_DBG_2, "rpcs::dispatch duplicate request %u from %u\n", h.xid, h.clt_nonce);
         c->send(b1, sz1);
         break;
     case FORGOTTEN: //very old request and we don't have the response anymore
@@ -601,6 +603,18 @@ void rpcs::add_reply(unsigned int clt_nonce, unsigned int xid,
                      char *b, int sz)
 {
     ScopedLock rwl(&reply_window_m_);
+    for (std::list<reply_t>::iterator it = reply_window_[clt_nonce].begin(); it != reply_window_[clt_nonce].end(); ++it)
+    {
+        if (it->xid == xid)
+        {
+            it->buf = (char*)malloc(sz);
+            it->sz = sz;
+            it->cb_present = false;
+            memcpy(it->buf, b, sz);
+            break;
+        }
+    }
+    
 }
 
 void rpcs::free_reply_window(void)
@@ -625,6 +639,38 @@ rpcs::rpcstate_t rpcs::checkduplicate_and_update(unsigned int clt_nonce, unsigne
 {
     ScopedLock rwl(&reply_window_m_);
 
+    std::list<reply_t>& reply_list = reply_window_.find(clt_nonce)->second;
+
+    for (std::list<reply_t>::iterator it = reply_list.begin(); it != reply_list.end();)
+    {
+        if (it->xid == xid)
+        {
+            if (it->cb_present == false)
+            {
+                *b = it->buf;
+                *sz = it->sz;
+                return DONE;
+            }
+            else
+            {
+                return INPROGRESS;
+            }
+        }
+        else if(it->xid <= xid_rep)
+        {
+            //free(it->buf);
+            //reply_list.erase(it++);
+            ++it;
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    reply_t r(xid);
+    r.cb_present = true;
+    reply_window_[clt_nonce].push_back(r);
     return NEW;
 }
 

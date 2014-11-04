@@ -582,7 +582,7 @@ void rpcs::dispatch(djob_t *j)
         }
         break;
     case INPROGRESS: //server is working on this request
-    jsl_log(JSL_DBG_2, "rpcs::dispatch server is working on request %u from %u\n", h.xid, h.clt_nonce);
+        jsl_log(JSL_DBG_2, "rpcs::dispatch server is working on request %u from %u\n", h.xid, h.clt_nonce);
         break;
     case DONE: //duplicate and we still have the response
         jsl_log(JSL_DBG_2, "rpcs::dispatch duplicate request %u from %u\n", h.xid, h.clt_nonce);
@@ -609,7 +609,7 @@ void rpcs::add_reply(unsigned int clt_nonce, unsigned int xid,
         {
             it->buf = (char*)malloc(sz);
             it->sz = sz;
-            it->cb_present = false;
+            it->cb_present = true;
             memcpy(it->buf, b, sz);
             break;
         }
@@ -645,7 +645,13 @@ rpcs::rpcstate_t rpcs::checkduplicate_and_update(unsigned int clt_nonce, unsigne
     {
         if (it->xid == xid)
         {
-            if (it->cb_present == false)
+            if (it->xid <= xid_rep)
+            {
+                free(it->buf);
+                reply_list.erase(it);
+                return FORGOTTEN;
+            }
+            if (true == it->cb_present)
             {
                 *b = it->buf;
                 *sz = it->sz;
@@ -658,9 +664,9 @@ rpcs::rpcstate_t rpcs::checkduplicate_and_update(unsigned int clt_nonce, unsigne
         }
         else if(it->xid <= xid_rep)
         {
-            //free(it->buf);
-            //reply_list.erase(it++);
-            ++it;
+            free(it->buf);
+            reply_list.erase(it++);
+            //++it;
         }
         else
         {
@@ -669,7 +675,6 @@ rpcs::rpcstate_t rpcs::checkduplicate_and_update(unsigned int clt_nonce, unsigne
     }
 
     reply_t r(xid);
-    r.cb_present = true;
     reply_window_[clt_nonce].push_back(r);
     return NEW;
 }

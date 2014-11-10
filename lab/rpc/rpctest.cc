@@ -1,28 +1,23 @@
 // RPC test and pseudo-documentation.
 // generates print statements on failures, but eventually says "rpctest OK"
 
+#include "rpc.h"
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
-
-#include <unistd.h>
-#include <ios>
-#include <iostream>
-#include <fstream>
-#include <string>
-
-#include "rpc.h"
-
 #include "jsl_log.h"
 #include "gettime.h"
 
+<<<<<<< HEAD
+=======
 #define THRES   3000.0
 #ifdef __APPLE__
 #include<mach/mach.h>
 #endif
 
+>>>>>>> lab1
 #define NUM_CL 2
 
 rpcs *server;  // server rpc object
@@ -43,6 +38,8 @@ public:
     int handle_bigrep(const int a, std::string &r);
 };
 
+<<<<<<< HEAD
+=======
 
 void process_mem_usage(double &resident_set)
 {
@@ -88,6 +85,7 @@ void process_mem_usage(double &resident_set)
 }
 
 
+>>>>>>> lab1
 // a handler. a and b are arguments, r is the result.
 // there can be multiple arguments but only one result.
 // the caller also gets to see the int return value
@@ -207,6 +205,23 @@ void *client1(void *xx)
 
 void *client2(void *xx)
 {
+<<<<<<< HEAD
+	int which_cl = ((unsigned long) xx ) % NUM_CL;
+
+	time_t t1;
+	time(&t1);
+
+	while(time(0) - t1 < 10){
+		int arg = (random() % 2000);
+		std::string rep;
+		int ret = clients[which_cl]->call(25, arg, rep);
+		if ((int)rep.size()!=arg) {
+			printf("ask for %d reply got %d ret %d\n", arg, rep.size(), ret);
+		}
+		assert((int)rep.size() == arg);
+	}
+	return 0;
+=======
     int which_cl = ((unsigned long) xx ) % NUM_CL;
 
     time_t t1;
@@ -224,6 +239,7 @@ void *client2(void *xx)
         assert((int)rep.size() == arg);
     }
     return 0;
+>>>>>>> lab1
 }
 
 void *client3(void *xx)
@@ -239,6 +255,8 @@ void *client3(void *xx)
     return 0;
 }
 
+<<<<<<< HEAD
+=======
 void * client4(void *xx)
 {
     // test garbage collection, view memory consumption.
@@ -277,6 +295,7 @@ void * client4(void *xx)
     assert(final - initial < THRES);
     return 0;
 }
+>>>>>>> lab1
 
 void simple_tests(rpcc *c)
 {
@@ -372,6 +391,38 @@ void concurrent_test(int nt)
     printf(" OK\n");
 }
 
+<<<<<<< HEAD
+void 
+lossy_test()
+{
+	int ret;
+
+	printf("start lossy_test ...");
+	assert(setenv("RPC_LOSSY", "5", 1) == 0);
+
+	if (server) {
+		delete server;
+		startserver();
+	}
+
+	for (int i = 0; i < NUM_CL; i++) {
+		delete clients[i];
+		clients[i] = new rpcc(dst);
+		assert(clients[i]->bind()==0);
+	}
+
+	int nt = 1;
+	pthread_t th[nt];
+	for(int i = 0; i < nt; i++){
+		ret = pthread_create(&th[i], &attr, client2, (void *) i);
+		assert(ret == 0);
+	}
+	for(int i = 0; i < nt; i++){
+		assert(pthread_join(th[i], NULL) == 0);
+	}
+	printf(".. OK\n");
+	assert(setenv("RPC_LOSSY", "0", 1) == 0);
+=======
 void garbage_collection_test(int nt)
 {
     // test garbage collection
@@ -426,6 +477,7 @@ void lossy_test()
     }
     printf(" OK\n");
     assert(setenv("RPC_LOSSY", "0", 1) == 0);
+>>>>>>> lab1
 }
 
 void failure_test()
@@ -506,6 +558,86 @@ void failure_test()
 
 int main(int argc, char *argv[])
 {
+<<<<<<< HEAD
+
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
+	int debug_level = 0;
+
+	bool isclient = false;
+	bool isserver = false;
+
+	srandom(getpid());
+	port = 20000 + (getpid() % 10000);
+
+	char ch = 0;
+	while ((ch = getopt(argc, argv, "csd:p:l"))!=-1) {
+		switch (ch) {
+			case 'c':
+				isclient = true;
+				break;
+			case 's':
+				isserver = true;
+				break;
+			case 'd':
+				debug_level = atoi(optarg);
+				break;
+			case 'p':
+				port = atoi(optarg);
+				break;
+			case 'l':
+				assert(setenv("RPC_LOSSY", "5", 1) == 0);
+			default:
+				break;
+		}
+	}
+
+	if (!isserver && !isclient)  {
+		isserver = isclient = true;
+	}
+
+	if (debug_level > 0) {
+		//__loginit.initNow();
+		jsl_set_debug(debug_level);
+		jsl_log(JSL_DBG_1, "DEBUG LEVEL: %d\n", debug_level);
+	}
+
+	testmarshall();
+
+	pthread_attr_init(&attr);
+	// set stack size to 32K, so we don't run out of memory
+	pthread_attr_setstacksize(&attr, 32*1024);
+
+	if (isserver) {
+		printf("starting server on port %d RPC_HEADER_SZ %d\n", port, RPC_HEADER_SZ);
+		startserver();
+	}
+
+	if (isclient) {
+		// server's address.
+		memset(&dst, 0, sizeof(dst));
+		dst.sin_family = AF_INET;
+		dst.sin_addr.s_addr = inet_addr("127.0.0.1");
+		dst.sin_port = htons(port);
+
+
+		// start the client.  bind it to the server.
+		// starts a thread to listen for replies and hand them to
+		// the correct waiting caller thread. there should probably
+		// be only one rpcc per process. you probably need one
+		// rpcc per server.
+		for (int i = 0; i < NUM_CL; i++) {
+			clients[i] = new rpcc(dst);
+			assert (clients[i]->bind() == 0);
+		}
+
+		simple_tests(clients[0]);
+		concurrent_test(10);
+		lossy_test();
+		if (isserver) {
+			failure_test();
+		}
+=======
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
     int debug_level = 0;
@@ -591,6 +723,7 @@ int main(int argc, char *argv[])
             failure_test();
             garbage_collection_test(1);
         }
+>>>>>>> lab1
 
         printf("rpctest OK\n");
 

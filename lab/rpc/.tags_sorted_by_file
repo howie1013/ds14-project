@@ -1,0 +1,378 @@
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+MAX_PDU	connection.cc	14;"	d	file:
+accept_conn	connection.cc	/^void tcpsconn::accept_conn()$/;"	f	class:tcpsconn
+closeconn	connection.cc	/^void connection::closeconn()$/;"	f	class:connection
+connect_to_dst	connection.cc	/^connection *connect_to_dst(const sockaddr_in &dst, chanmgr *mgr, int lossy)$/;"	f
+connection	connection.cc	/^connection::connection(chanmgr *m1, int f1, int l1) : mgr_(m1), fd_(f1), dead_(false), waiters_(0), refno_(1), lossy_(l1)$/;"	f	class:connection
+decref	connection.cc	/^void connection::decref()$/;"	f	class:connection
+incref	connection.cc	/^void connection::incref()$/;"	f	class:connection
+isdead	connection.cc	/^bool connection::isdead()$/;"	f	class:connection
+process_accept	connection.cc	/^void tcpsconn::process_accept()$/;"	f	class:tcpsconn
+read_cb	connection.cc	/^void connection::read_cb(int s)$/;"	f	class:connection
+readpdu	connection.cc	/^bool connection::readpdu()$/;"	f	class:connection
+ref	connection.cc	/^int connection::ref()$/;"	f	class:connection
+send	connection.cc	/^bool connection::send(char *b, int sz)$/;"	f	class:connection
+tcpsconn	connection.cc	/^tcpsconn::tcpsconn(chanmgr *m1, int port, int lossytest) : mgr_(m1), lossy_(lossytest)$/;"	f	class:tcpsconn
+write_cb	connection.cc	/^void connection::write_cb(int s)$/;"	f	class:connection
+writepdu	connection.cc	/^bool connection::writepdu()$/;"	f	class:connection
+~connection	connection.cc	/^connection::~connection()$/;"	f	class:connection
+~tcpsconn	connection.cc	/^tcpsconn::~tcpsconn()$/;"	f	class:tcpsconn
+buf	connection.h	/^        char *buf;$/;"	m	struct:connection::charbuf
+bundle	connection.h	/^    bundle(chanmgr *m, int s, int l): mgr(m), tcp(s), lossy(l) {}$/;"	f	struct:bundle
+bundle	connection.h	/^struct bundle$/;"	s
+chanmgr	connection.h	/^class chanmgr$/;"	c
+channo	connection.h	/^    int channo()$/;"	f	class:connection
+charbuf	connection.h	/^        charbuf (char *b, int s) : buf(b), sz(s), solong(0) {}$/;"	f	struct:connection::charbuf
+charbuf	connection.h	/^        charbuf(): buf(NULL), sz(0), solong(0) {}$/;"	f	struct:connection::charbuf
+charbuf	connection.h	/^    struct charbuf$/;"	s	class:connection
+connection	connection.h	/^class connection : public aio_callback$/;"	c
+connection_h	connection.h	2;"	d
+conns_	connection.h	/^    std::map<int, connection *> conns_;$/;"	m	class:tcpsconn
+dead_	connection.h	/^    bool dead_;$/;"	m	class:connection
+fd_	connection.h	/^    const int fd_;$/;"	m	class:connection
+lossy	connection.h	/^    int lossy;$/;"	m	struct:bundle
+lossy_	connection.h	/^    const int lossy_;$/;"	m	class:connection
+lossy_	connection.h	/^    int lossy_;$/;"	m	class:tcpsconn
+m_	connection.h	/^    pthread_mutex_t m_;$/;"	m	class:connection
+m_	connection.h	/^    pthread_mutex_t m_;$/;"	m	class:tcpsconn
+mgr	connection.h	/^    chanmgr *mgr;$/;"	m	struct:bundle
+mgr_	connection.h	/^    chanmgr *mgr_;$/;"	m	class:connection
+mgr_	connection.h	/^    chanmgr *mgr_;$/;"	m	class:tcpsconn
+pipe_	connection.h	/^    int pipe_[2];$/;"	m	class:tcpsconn
+ref_m_	connection.h	/^    pthread_mutex_t ref_m_;$/;"	m	class:connection
+refno_	connection.h	/^    int refno_;$/;"	m	class:connection
+rpdu_	connection.h	/^    charbuf rpdu_;$/;"	m	class:connection
+send_complete_	connection.h	/^    pthread_cond_t send_complete_;$/;"	m	class:connection
+send_wait_	connection.h	/^    pthread_cond_t send_wait_;$/;"	m	class:connection
+solong	connection.h	/^        int solong; \/\/amount of bytes written or read so far$/;"	m	struct:connection::charbuf
+sz	connection.h	/^        int sz;$/;"	m	struct:connection::charbuf
+tcp	connection.h	/^    int tcp;$/;"	m	struct:bundle
+tcp_	connection.h	/^    int tcp_; \/\/file desciptor for accepting connection$/;"	m	class:tcpsconn
+tcpsconn	connection.h	/^class tcpsconn$/;"	c
+th_	connection.h	/^    pthread_t th_;$/;"	m	class:tcpsconn
+waiters_	connection.h	/^    int waiters_;$/;"	m	class:connection
+wpdu_	connection.h	/^    charbuf wpdu_;$/;"	m	class:connection
+~chanmgr	connection.h	/^    virtual ~chanmgr() {}$/;"	f	class:chanmgr
+deq	fifo.h	/^void fifo<T>::deq(T *e)$/;"	f	class:fifo
+enq	fifo.h	/^bool fifo<T>::enq(T e, bool blocking)$/;"	f	class:fifo
+fifo	fifo.h	/^class fifo$/;"	c
+fifo	fifo.h	/^fifo<T>::fifo(int limit) : max_(limit)$/;"	f	class:fifo
+fifo_h	fifo.h	2;"	d
+has_space_c_	fifo.h	/^    pthread_cond_t has_space_c_; \/\/ q is not longer overfull$/;"	m	class:fifo
+m_	fifo.h	/^    pthread_mutex_t m_;$/;"	m	class:fifo
+max_	fifo.h	/^    unsigned int max_; \/\/maximum capacity of the queue, block enq threads if exceeds this limit$/;"	m	class:fifo
+non_empty_c_	fifo.h	/^    pthread_cond_t non_empty_c_; \/\/ q went non-empty$/;"	m	class:fifo
+q_	fifo.h	/^    std::list<T> q_;$/;"	m	class:fifo
+size	fifo.h	/^bool fifo<T>::size()$/;"	f	class:fifo
+~fifo	fifo.h	/^fifo<T>::~fifo()$/;"	f	class:fifo
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+JSL_DEBUG_LEVEL	jsl_log.cc	/^int JSL_DEBUG_LEVEL = 0;$/;"	v
+jsl_set_debug	jsl_log.cc	/^void jsl_set_debug(int level)$/;"	f
+JSL_DBG_1	jsl_log.h	/^    JSL_DBG_1 = 1, \/\/ Critical$/;"	e	enum:dbcode
+JSL_DBG_2	jsl_log.h	/^    JSL_DBG_2 = 2, \/\/ Error$/;"	e	enum:dbcode
+JSL_DBG_3	jsl_log.h	/^    JSL_DBG_3 = 3, \/\/ Info$/;"	e	enum:dbcode
+JSL_DBG_4	jsl_log.h	/^    JSL_DBG_4 = 4, \/\/ Debugging$/;"	e	enum:dbcode
+JSL_DBG_OFF	jsl_log.h	/^    JSL_DBG_OFF = 0,$/;"	e	enum:dbcode
+__JSL_LOG_H__	jsl_log.h	2;"	d
+dbcode	jsl_log.h	/^enum dbcode$/;"	g
+jsl_log	jsl_log.h	15;"	d
+DEFAULT_RPC_SZ	marshall.h	/^    DEFAULT_RPC_SZ = 1024,$/;"	e	enum:__anon3
+RPC_HEADER_SZ	marshall.h	/^    RPC_HEADER_SZ = max(sizeof(req_header), sizeof(reply_header)) + sizeof(rpc_sz_t) + sizeof(rpc_checksum_t)$/;"	e	enum:__anon3
+_buf	marshall.h	/^    char *_buf;     \/\/ Base of the raw bytes buffer (dynamically readjusted)$/;"	m	class:marshall
+_buf	marshall.h	/^    char *_buf;$/;"	m	class:unmarshall
+_capa	marshall.h	/^    int _capa;      \/\/ Capacity of the buffer$/;"	m	class:marshall
+_ind	marshall.h	/^    int _ind;       \/\/ Read\/write head position$/;"	m	class:marshall
+_ind	marshall.h	/^    int _ind;$/;"	m	class:unmarshall
+_ok	marshall.h	/^    bool _ok;$/;"	m	class:unmarshall
+_sz	marshall.h	/^    int _sz;$/;"	m	class:unmarshall
+clt_nonce	marshall.h	/^    unsigned int clt_nonce;$/;"	m	struct:req_header
+cstr	marshall.h	/^    char *cstr()$/;"	f	class:marshall
+cstr	marshall.h	/^    char *cstr()$/;"	f	class:unmarshall
+ind	marshall.h	/^    int ind()$/;"	f	class:unmarshall
+marshall	marshall.h	/^    marshall()$/;"	f	class:marshall
+marshall	marshall.h	/^class marshall$/;"	c
+marshall_h	marshall.h	2;"	d
+max	marshall.h	13;"	d
+ok	marshall.h	/^    bool ok()$/;"	f	class:unmarshall
+operator <<	marshall.h	/^operator<<(marshall &m, const std::map<A, B> &d)$/;"	f
+operator <<	marshall.h	/^operator<<(marshall &m, std::vector<C> v)$/;"	f
+operator >>	marshall.h	/^operator>>(unmarshall &u, std::map<A, B> &d)$/;"	f
+operator >>	marshall.h	/^operator>>(unmarshall &u, std::vector<C> &v)$/;"	f
+pack_reply_header	marshall.h	/^    void pack_reply_header(const reply_header &h)$/;"	f	class:marshall
+pack_req_header	marshall.h	/^    void pack_req_header(const req_header &h)$/;"	f	class:marshall
+proc	marshall.h	/^    int proc;$/;"	m	struct:req_header
+reply_header	marshall.h	/^    reply_header(int x = 0, int r = 0): xid(x), ret(r) {}$/;"	f	struct:reply_header
+reply_header	marshall.h	/^struct reply_header$/;"	s
+req_header	marshall.h	/^    req_header(int x = 0, int p = 0, int c = 0, int s = 0, int xi = 0):$/;"	f	struct:req_header
+req_header	marshall.h	/^struct req_header$/;"	s
+ret	marshall.h	/^    int ret;$/;"	m	struct:reply_header
+rpc_checksum_t	marshall.h	/^typedef uint64_t rpc_checksum_t;$/;"	t
+rpc_sz_t	marshall.h	/^typedef int rpc_sz_t;$/;"	t
+size	marshall.h	/^    int size()$/;"	f	class:marshall
+size	marshall.h	/^    int size()$/;"	f	class:unmarshall
+srv_nonce	marshall.h	/^    unsigned int srv_nonce;$/;"	m	struct:req_header
+str	marshall.h	/^    const std::string str() const$/;"	f	class:marshall
+take_buf	marshall.h	/^    void take_buf(char **b, int *s)$/;"	f	class:marshall
+take_buf	marshall.h	/^    void take_buf(char **b, int *sz)$/;"	f	class:unmarshall
+unmarshall	marshall.h	/^    unmarshall(): _buf(NULL), _sz(0), _ind(0), _ok(false) {}$/;"	f	class:unmarshall
+unmarshall	marshall.h	/^    unmarshall(char *b, int sz): _buf(b), _sz(sz), _ind(), _ok(true) {}$/;"	f	class:unmarshall
+unmarshall	marshall.h	/^class unmarshall$/;"	c
+unpack_reply_header	marshall.h	/^    void unpack_reply_header(reply_header *h)$/;"	f	class:unmarshall
+unpack_req_header	marshall.h	/^    void unpack_req_header(req_header *h)$/;"	f	class:unmarshall
+xid	marshall.h	/^    int xid;$/;"	m	struct:reply_header
+xid	marshall.h	/^    int xid;$/;"	m	struct:req_header
+xid_rep	marshall.h	/^    int xid_rep;$/;"	m	struct:req_header
+~marshall	marshall.h	/^    ~marshall()$/;"	f	class:marshall
+~unmarshall	marshall.h	/^    ~unmarshall()$/;"	f	class:unmarshall
+XXX	method_thread.h	/^template <class C, class A1, class A2> class XXX$/;"	c	namespace:__anon2
+a1	method_thread.h	/^    A1 a1;$/;"	m	class:__anon2::XXX
+a2	method_thread.h	/^    A2  a2;$/;"	m	class:__anon2::XXX
+m	method_thread.h	/^    void (C::*m)(A1 a1, A2 a2);$/;"	m	class:__anon2::XXX
+method_thread	method_thread.h	/^template <class C, class A1, class A2, class A3> pthread_t method_thread(C *o, bool detach, void (C::*m)(A1 , A2, A3 ), A1 a1, A2 a2, A3 a3)$/;"	f
+method_thread	method_thread.h	/^template <class C, class A1, class A2> pthread_t method_thread(C *o, bool detach, void (C::*m)(A1 , A2 ), A1 a1, A2 a2)$/;"	f
+method_thread	method_thread.h	/^template <class C, class A> pthread_t method_thread(C *o, bool detach, void (C::*m)(A), A a)$/;"	f
+method_thread	method_thread.h	/^template <class C> pthread_t method_thread(C *o, bool detach, void (C::*m)())$/;"	f
+method_thread_child	method_thread.h	/^static void method_thread_child()$/;"	f
+method_thread_h	method_thread.h	2;"	d
+method_thread_parent	method_thread.h	/^static pthread_t method_thread_parent(void *(*fn)(void *), void *arg, bool detach)$/;"	f
+o	method_thread.h	/^    C *o;$/;"	m	class:__anon2::XXX
+yyy	method_thread.h	/^    static void *yyy(void *vvv)$/;"	f	class:__anon2::XXX
+EPollAIO	pollmgr.cc	/^EPollAIO::EPollAIO()$/;"	f	class:EPollAIO
+Instance	pollmgr.cc	/^PollMgr * PollMgr::Instance()$/;"	f	class:PollMgr
+PollMgr	pollmgr.cc	/^PollMgr::PollMgr() : pending_change_(false)$/;"	f	class:PollMgr
+PollMgrInit	pollmgr.cc	/^void PollMgrInit()$/;"	f
+SelectAIO	pollmgr.cc	/^SelectAIO::SelectAIO() : highfds_(0)$/;"	f	class:SelectAIO
+add_callback	pollmgr.cc	/^void PollMgr::add_callback(int fd, poll_flag flag, aio_callback *ch)$/;"	f	class:PollMgr
+block_remove_fd	pollmgr.cc	/^void PollMgr::block_remove_fd(int fd)$/;"	f	class:PollMgr
+del_callback	pollmgr.cc	/^void PollMgr::del_callback(int fd, poll_flag flag)$/;"	f	class:PollMgr
+has_callback	pollmgr.cc	/^bool PollMgr::has_callback(int fd, poll_flag flag, aio_callback *c)$/;"	f	class:PollMgr
+instance	pollmgr.cc	/^PollMgr *PollMgr::instance = NULL;$/;"	m	class:PollMgr	file:
+is_watched	pollmgr.cc	/^bool EPollAIO::is_watched(int fd, poll_flag flag)$/;"	f	class:EPollAIO
+is_watched	pollmgr.cc	/^bool SelectAIO::is_watched(int fd, poll_flag flag)$/;"	f	class:SelectAIO
+poll_flag_to_event	pollmgr.cc	/^static inline int poll_flag_to_event(poll_flag flag)$/;"	f	file:
+pollmgr_is_initialized	pollmgr.cc	/^static pthread_once_t pollmgr_is_initialized = PTHREAD_ONCE_INIT;$/;"	v	file:
+unwatch_fd	pollmgr.cc	/^bool EPollAIO::unwatch_fd(int fd, poll_flag flag)$/;"	f	class:EPollAIO
+unwatch_fd	pollmgr.cc	/^bool SelectAIO::unwatch_fd(int fd, poll_flag flag)$/;"	f	class:SelectAIO
+wait_loop	pollmgr.cc	/^void PollMgr::wait_loop()$/;"	f	class:PollMgr
+wait_ready	pollmgr.cc	/^void EPollAIO::wait_ready(std::vector<int> *readable, std::vector<int> *writable)$/;"	f	class:EPollAIO
+wait_ready	pollmgr.cc	/^void SelectAIO::wait_ready(std::vector<int> *readable, std::vector<int> *writable)$/;"	f	class:SelectAIO
+watch_fd	pollmgr.cc	/^void EPollAIO::watch_fd(int fd, poll_flag flag)$/;"	f	class:EPollAIO
+watch_fd	pollmgr.cc	/^void SelectAIO::watch_fd(int fd, poll_flag flag)$/;"	f	class:SelectAIO
+~EPollAIO	pollmgr.cc	/^EPollAIO::~EPollAIO()$/;"	f	class:EPollAIO
+~PollMgr	pollmgr.cc	/^PollMgr::~PollMgr()$/;"	f	class:PollMgr
+~SelectAIO	pollmgr.cc	/^SelectAIO::~SelectAIO()$/;"	f	class:SelectAIO
+CB_MASK	pollmgr.h	/^    CB_MASK = ~0x11,$/;"	e	enum:__anon1
+CB_NONE	pollmgr.h	/^    CB_NONE = 0x0,$/;"	e	enum:__anon1
+CB_RDONLY	pollmgr.h	/^    CB_RDONLY = 0x1,$/;"	e	enum:__anon1
+CB_RDWR	pollmgr.h	/^    CB_RDWR = 0x11,$/;"	e	enum:__anon1
+CB_WRONLY	pollmgr.h	/^    CB_WRONLY = 0x10,$/;"	e	enum:__anon1
+EPollAIO	pollmgr.h	/^class EPollAIO : public aio_mgr$/;"	c
+MAX_POLL_FDS	pollmgr.h	11;"	d
+PollMgr	pollmgr.h	/^class PollMgr$/;"	c
+SelectAIO	pollmgr.h	/^class SelectAIO : public aio_mgr$/;"	c
+aio_	pollmgr.h	/^    aio_mgr *aio_;$/;"	m	class:PollMgr
+aio_callback	pollmgr.h	/^class aio_callback$/;"	c
+aio_mgr	pollmgr.h	/^class aio_mgr$/;"	c
+callbacks_	pollmgr.h	/^    aio_callback *callbacks_[MAX_POLL_FDS];$/;"	m	class:PollMgr
+changedone_c_	pollmgr.h	/^    pthread_cond_t changedone_c_;$/;"	m	class:PollMgr
+fdstatus_	pollmgr.h	/^    int fdstatus_[MAX_POLL_FDS];$/;"	m	class:EPollAIO
+highfds_	pollmgr.h	/^    int highfds_;$/;"	m	class:SelectAIO
+instance	pollmgr.h	/^    static PollMgr *instance;$/;"	m	class:PollMgr
+m_	pollmgr.h	/^    pthread_mutex_t m_;$/;"	m	class:PollMgr
+m_	pollmgr.h	/^    pthread_mutex_t m_;$/;"	m	class:SelectAIO
+pending_change_	pollmgr.h	/^    bool pending_change_;$/;"	m	class:PollMgr
+pipefd_	pollmgr.h	/^    int pipefd_[2];$/;"	m	class:SelectAIO
+poll_flag	pollmgr.h	/^} poll_flag;$/;"	t	typeref:enum:__anon1
+pollfd_	pollmgr.h	/^    int pollfd_;$/;"	m	class:EPollAIO
+pollmgr_h	pollmgr.h	2;"	d
+ready_	pollmgr.h	/^    struct epoll_event ready_[MAX_POLL_FDS];$/;"	m	class:EPollAIO	typeref:struct:EPollAIO::epoll_event
+rfds_	pollmgr.h	/^    fd_set rfds_;$/;"	m	class:SelectAIO
+th_	pollmgr.h	/^    pthread_t th_;$/;"	m	class:PollMgr
+useful	pollmgr.h	/^    static int useful;$/;"	m	class:PollMgr
+useless	pollmgr.h	/^    static int useless;$/;"	m	class:PollMgr
+wfds_	pollmgr.h	/^    fd_set wfds_;$/;"	m	class:SelectAIO
+~aio_callback	pollmgr.h	/^    virtual ~aio_callback() {}$/;"	f	class:aio_callback
+~aio_mgr	pollmgr.h	/^    virtual ~aio_mgr() {}$/;"	f	class:aio_mgr
+add_reply	rpc.cc	/^void rpcs::add_reply(unsigned int clt_nonce, unsigned int xid,$/;"	f	class:rpcs
+add_timespec	rpc.cc	/^void add_timespec(const struct timespec &a, int b, struct timespec *result)$/;"	f
+bind	rpc.cc	/^int rpcc::bind(TO to)$/;"	f	class:rpcc
+call1	rpc.cc	/^int rpcc::call1(unsigned int proc, marshall &req, unmarshall &rep, TO to)$/;"	f	class:rpcc
+caller	rpc.cc	/^rpcc::caller::caller(unsigned int xxid, unmarshall *xun)$/;"	f	class:rpcc::caller
+checkduplicate_and_update	rpc.cc	/^rpcs::rpcstate_t rpcs::checkduplicate_and_update(unsigned int clt_nonce, unsigned int xid,$/;"	f	class:rpcs
+cmp_timespec	rpc.cc	/^int cmp_timespec(const struct timespec &a, const struct timespec &b)$/;"	f
+diff_timespec	rpc.cc	/^int diff_timespec(const struct timespec &end, const struct timespec &start)$/;"	f
+dispatch	rpc.cc	/^void rpcs::dispatch(djob_t *j)$/;"	f	class:rpcs
+free_reply_window	rpc.cc	/^void rpcs::free_reply_window(void)$/;"	f	class:rpcs
+get_refconn	rpc.cc	/^void rpcc::get_refconn(connection **ch)$/;"	f	class:rpcc
+got_pdu	rpc.cc	/^bool rpcc::got_pdu(connection *c, char *b, int sz)$/;"	f	class:rpcc
+got_pdu	rpc.cc	/^bool rpcs::got_pdu(connection *c, char *b, int sz)$/;"	f	class:rpcs
+make_sockaddr	rpc.cc	/^void make_sockaddr(const char *host, const char *port, struct sockaddr_in *dst)$/;"	f
+make_sockaddr	rpc.cc	/^void make_sockaddr(const char *hostandport, struct sockaddr_in *dst)$/;"	f
+okdone	rpc.cc	/^bool unmarshall::okdone()$/;"	f	class:unmarshall
+operator <	rpc.cc	/^bool operator<(const sockaddr_in &a, const sockaddr_in &b)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, char x)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, const std::string &s)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, int x)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, short x)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, unsigned char x)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, unsigned int x)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, unsigned long long x)$/;"	f
+operator <<	rpc.cc	/^marshall &operator<<(marshall &m, unsigned short x)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, char &x)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, int &x)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, short &x)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, std::string &s)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, unsigned char &x)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, unsigned int &x)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, unsigned long long &x)$/;"	f
+operator >>	rpc.cc	/^unmarshall &operator>>(unmarshall &u, unsigned short &x)$/;"	f
+pack	rpc.cc	/^void marshall::pack(int x)$/;"	f	class:marshall
+rawbyte	rpc.cc	/^unsigned int unmarshall::rawbyte()$/;"	f	class:unmarshall
+rawbyte	rpc.cc	/^void marshall::rawbyte(unsigned char x)$/;"	f	class:marshall
+rawbytes	rpc.cc	/^void marshall::rawbytes(const char *p, int n)$/;"	f	class:marshall
+rawbytes	rpc.cc	/^void unmarshall::rawbytes(std::string &ss, unsigned int n)$/;"	f	class:unmarshall
+reg1	rpc.cc	/^void rpcs::reg1(unsigned int proc, handler *h)$/;"	f	class:rpcs
+rpcbind	rpc.cc	/^int rpcs::rpcbind(int a, int &r)$/;"	f	class:rpcs
+rpcc	rpc.cc	/^rpcc::rpcc(sockaddr_in d, bool retrans) :$/;"	f	class:rpcc
+rpcs	rpc.cc	/^rpcs::rpcs(unsigned int p1, int count)$/;"	f	class:rpcs
+set_rand_seed	rpc.cc	/^inline void set_rand_seed()$/;"	f
+take_in	rpc.cc	/^void unmarshall::take_in(unmarshall &another)$/;"	f	class:unmarshall
+to_max	rpc.cc	/^const rpcc::TO rpcc::to_max = { 120000 };$/;"	m	class:rpcc	file:
+to_min	rpc.cc	/^const rpcc::TO rpcc::to_min = { 1000 };$/;"	m	class:rpcc	file:
+unpack	rpc.cc	/^void unmarshall::unpack(int *x)$/;"	f	class:unmarshall
+update_xid_rep	rpc.cc	/^void rpcc::update_xid_rep(unsigned int xid)$/;"	f	class:rpcc
+updatestat	rpc.cc	/^void rpcs::updatestat(unsigned int proc)$/;"	f	class:rpcs
+~caller	rpc.cc	/^rpcc::caller::~caller()$/;"	f	class:rpcc::caller
+~rpcc	rpc.cc	/^rpcc::~rpcc()$/;"	f	class:rpcc
+~rpcs	rpc.cc	/^rpcs::~rpcs()$/;"	f	class:rpcs
+DONE	rpc.h	/^        DONE, \/\/ duplicate of an RPC we already replied to (have reply)$/;"	e	enum:rpcs::__anon4
+FORGOTTEN	rpc.h	/^        FORGOTTEN,  \/\/ duplicate of an old RPC whose reply we've forgotten$/;"	e	enum:rpcs::__anon4
+INPROGRESS	rpc.h	/^        INPROGRESS, \/\/ duplicate of an RPC we're still processing$/;"	e	enum:rpcs::__anon4
+NEW	rpc.h	/^        NEW,  \/\/ new RPC, not a duplicate$/;"	e	enum:rpcs::__anon4
+TO	rpc.h	/^    struct TO$/;"	s	class:rpcc
+atmostonce_failure	rpc.h	/^    static const int atmostonce_failure = -4;$/;"	m	class:rpc_const
+bind	rpc.h	/^    static const unsigned int bind = 1;   \/\/ handler number reserved for bind$/;"	m	class:rpc_const
+bind_done_	rpc.h	/^    bool bind_done_;$/;"	m	class:rpcc
+bind_failure	rpc.h	/^    static const int bind_failure = -6;$/;"	m	class:rpc_const
+buf	rpc.h	/^        char *buf;$/;"	m	struct:rpcs::djob_t
+buf	rpc.h	/^        char *buf;$/;"	m	struct:rpcs::reply_t
+c	rpc.h	/^        pthread_cond_t c;$/;"	m	struct:rpcc::caller
+call	rpc.h	/^int rpcc::call(unsigned int proc, R &r, TO to)$/;"	f	class:rpcc
+call	rpc.h	/^int rpcc::call(unsigned int proc, const A1 &a1, R &r, TO to)$/;"	f	class:rpcc
+call	rpc.h	/^int rpcc::call(unsigned int proc, const A1 &a1, const A2 &a2,$/;"	f	class:rpcc
+call_m	rpc.h	/^int rpcc::call_m(unsigned int proc, marshall &req, R &r, TO to)$/;"	f	class:rpcc
+caller	rpc.h	/^    struct caller$/;"	s	class:rpcc
+calls_	rpc.h	/^    std::map<int, caller *> calls_;$/;"	m	class:rpcc
+cb_present	rpc.h	/^        bool cb_present;$/;"	m	struct:rpcs::reply_t
+chan_	rpc.h	/^    connection *chan_;$/;"	m	class:rpcc
+chan_m_	rpc.h	/^    pthread_mutex_t chan_m_;$/;"	m	class:rpcc
+clt_nonce_	rpc.h	/^    unsigned int clt_nonce_;$/;"	m	class:rpcc
+conn	rpc.h	/^        connection *conn;$/;"	m	struct:rpcs::djob_t
+conns_	rpc.h	/^    std::map<unsigned int, connection *> conns_;$/;"	m	class:rpcs
+conss_m_	rpc.h	/^    pthread_mutex_t conss_m_; \/\/ protect conns_$/;"	m	class:rpcs
+count_m_	rpc.h	/^    pthread_mutex_t count_m_;  \/\/protect modification of counts$/;"	m	class:rpcs
+counting_	rpc.h	/^    const int counting_;$/;"	m	class:rpcs
+counts_	rpc.h	/^    std::map<int, int> counts_;$/;"	m	class:rpcs
+curr_counts_	rpc.h	/^    int curr_counts_;$/;"	m	class:rpcs
+dispatchpool_	rpc.h	/^    ThrPool *dispatchpool_;$/;"	m	class:rpcs
+djob_t	rpc.h	/^        djob_t (connection *c, char *b, int bsz): buf(b), sz(bsz), conn(c) {}$/;"	f	struct:rpcs::djob_t
+djob_t	rpc.h	/^    struct djob_t$/;"	s	class:rpcs
+done	rpc.h	/^        bool done;$/;"	m	struct:rpcc::caller
+dst_	rpc.h	/^    sockaddr_in dst_;$/;"	m	class:rpcc
+handler	rpc.h	/^    handler() { }$/;"	f	class:handler
+handler	rpc.h	/^class handler$/;"	c
+id	rpc.h	/^    unsigned int id()$/;"	f	class:rpcc
+intret	rpc.h	/^        int intret;$/;"	m	struct:rpcc::caller
+listener_	rpc.h	/^    tcpsconn *listener_;$/;"	m	class:rpcs
+lossytest_	rpc.h	/^    int lossytest_;$/;"	m	class:rpcc
+lossytest_	rpc.h	/^    int lossytest_;$/;"	m	class:rpcs
+m	rpc.h	/^        pthread_mutex_t m;$/;"	m	struct:rpcc::caller
+m_	rpc.h	/^    pthread_mutex_t m_; \/\/ protect insert\/delete to calls[]$/;"	m	class:rpcc
+nonce_	rpc.h	/^    unsigned int nonce_;$/;"	m	class:rpcs
+oldsrv_failure	rpc.h	/^    static const int oldsrv_failure = -5;$/;"	m	class:rpc_const
+port_	rpc.h	/^    int port_;$/;"	m	class:rpcs
+procs_	rpc.h	/^    std::map<int, handler *> procs_;$/;"	m	class:rpcs
+procs_m_	rpc.h	/^    pthread_mutex_t procs_m_; \/\/ protect insert\/delete to procs[]$/;"	m	class:rpcs
+reg	rpc.h	/^void rpcs::reg(unsigned int proc, S *sob, int (S::*meth)(const A1 a1, R &r))$/;"	f	class:rpcs
+reg	rpc.h	/^void rpcs::reg(unsigned int proc, S *sob, int (S::*meth)(const A1 a1, const A2 a2, R &r))$/;"	f	class:rpcs
+reg	rpc.h	/^void rpcs::reg(unsigned int proc, S *sob, int (S::*meth)(const A1 a1, const A2 a2, const A3 a3, R &r))$/;"	f	class:rpcs
+reg	rpc.h	/^void rpcs::reg(unsigned int proc, S *sob, int (S::*meth)(const A1 a1, const A2 a2, const A3 a3, const A4 a4, R &r))$/;"	f	class:rpcs
+reg	rpc.h	/^void rpcs::reg(unsigned int proc, S *sob, int (S::*meth)(const A1 a1, const A2 a2, const A3 a3, const A4 a4, const A5 a5, R &r))$/;"	f	class:rpcs
+reg	rpc.h	/^void rpcs::reg(unsigned int proc, S *sob, int (S::*meth)(const A1 a1, const A2 a2,$/;"	f	class:rpcs
+reply_t	rpc.h	/^        reply_t (unsigned int _xid)$/;"	f	struct:rpcs::reply_t
+reply_t	rpc.h	/^    struct reply_t$/;"	s	class:rpcs
+reply_window_	rpc.h	/^    std::map<unsigned int, std::list<reply_t> > reply_window_;$/;"	m	class:rpcs
+reply_window_m_	rpc.h	/^    pthread_mutex_t reply_window_m_; \/\/ protect reply window et al$/;"	m	class:rpcs
+retrans_	rpc.h	/^    bool retrans_;$/;"	m	class:rpcc
+rpc_const	rpc.h	/^class rpc_const$/;"	c
+rpc_h	rpc.h	2;"	d
+rpcc	rpc.h	/^class rpcc : public chanmgr$/;"	c
+rpcs	rpc.h	/^class rpcs : public chanmgr$/;"	c
+rpcstate_t	rpc.h	/^    } rpcstate_t;$/;"	t	class:rpcs	typeref:enum:rpcs::__anon4
+srv_nonce_	rpc.h	/^    unsigned int srv_nonce_;$/;"	m	class:rpcc
+sz	rpc.h	/^        int sz;$/;"	m	struct:rpcs::djob_t
+sz	rpc.h	/^        int sz;$/;"	m	struct:rpcs::reply_t
+timeout_failure	rpc.h	/^    static const int timeout_failure = -1;$/;"	m	class:rpc_const
+to	rpc.h	/^        int to;$/;"	m	struct:rpcc::TO
+to	rpc.h	/^    static TO to(int x)$/;"	f	class:rpcc
+to_max	rpc.h	/^    static const TO to_max;$/;"	m	class:rpcc
+to_min	rpc.h	/^    static const TO to_min;$/;"	m	class:rpcc
+un	rpc.h	/^        unmarshall *un;$/;"	m	struct:rpcc::caller
+unmarshal_args_failure	rpc.h	/^    static const int unmarshal_args_failure = -2;$/;"	m	class:rpc_const
+unmarshal_reply_failure	rpc.h	/^    static const int unmarshal_reply_failure = -3;$/;"	m	class:rpc_const
+xid	rpc.h	/^        unsigned int xid;$/;"	m	struct:rpcc::caller
+xid	rpc.h	/^        unsigned int xid;$/;"	m	struct:rpcs::reply_t
+xid_	rpc.h	/^    unsigned int xid_;$/;"	m	class:rpcc
+xid_rep_window_	rpc.h	/^    std::list<unsigned int> xid_rep_window_;$/;"	m	class:rpcc
+~handler	rpc.h	/^    virtual ~handler() { }$/;"	f	class:handler
+NUM_CL	rpctest.cc	26;"	d	file:
+THRES	rpctest.cc	21;"	d	file:
+attr	rpctest.cc	/^pthread_attr_t attr;$/;"	v
+client1	rpctest.cc	/^void *client1(void *xx)$/;"	f
+client2	rpctest.cc	/^void *client2(void *xx)$/;"	f
+client3	rpctest.cc	/^void *client3(void *xx)$/;"	f
+client4	rpctest.cc	/^void * client4(void *xx)$/;"	f
+clients	rpctest.cc	/^rpcc *clients[NUM_CL];  \/\/ client rpc object$/;"	v
+concurrent_test	rpctest.cc	/^void concurrent_test(int nt)$/;"	f
+dst	rpctest.cc	/^struct sockaddr_in dst; \/\/server's ip address$/;"	v	typeref:struct:sockaddr_in
+failure_test	rpctest.cc	/^void failure_test()$/;"	f
+garbage_collection_test	rpctest.cc	/^void garbage_collection_test(int nt)$/;"	f
+handle_22	rpctest.cc	/^int srv::handle_22(const std::string a, std::string b, std::string &r)$/;"	f	class:srv
+handle_bigrep	rpctest.cc	/^int srv::handle_bigrep(const int len, std::string &r)$/;"	f	class:srv
+handle_fast	rpctest.cc	/^int srv::handle_fast(const int a, int &r)$/;"	f	class:srv
+handle_slow	rpctest.cc	/^int srv::handle_slow(const int a, int &r)$/;"	f	class:srv
+lossy_test	rpctest.cc	/^void lossy_test()$/;"	f
+main	rpctest.cc	/^int main(int argc, char *argv[])$/;"	f
+port	rpctest.cc	/^int port;$/;"	v
+process_mem_usage	rpctest.cc	/^void process_mem_usage(double &resident_set)$/;"	f
+server	rpctest.cc	/^rpcs *server;  \/\/ server rpc object$/;"	v
+service	rpctest.cc	/^srv service;$/;"	v
+simple_tests	rpctest.cc	/^void simple_tests(rpcc *c)$/;"	f
+srv	rpctest.cc	/^class srv$/;"	c	file:
+startserver	rpctest.cc	/^void startserver()$/;"	f
+testmarshall	rpctest.cc	/^void testmarshall()$/;"	f
+ScopedLock	slock.h	/^    ScopedLock(pthread_mutex_t *m): m_(m)$/;"	f	struct:ScopedLock
+ScopedLock	slock.h	/^struct ScopedLock$/;"	s
+__SCOPED_LOCK__	slock.h	2;"	d
+m_	slock.h	/^    pthread_mutex_t *m_;$/;"	m	struct:ScopedLock
+~ScopedLock	slock.h	/^    ~ScopedLock()$/;"	f	struct:ScopedLock
+ThrPool	thr_pool.cc	/^ThrPool::ThrPool(int sz, bool blocking): nthreads_(sz), blockadd_(blocking), jobq_(100 * sz)$/;"	f	class:ThrPool
+addJob	thr_pool.cc	/^bool ThrPool::addJob(void *(*f)(void *), void *a)$/;"	f	class:ThrPool
+do_worker	thr_pool.cc	/^static void *do_worker(void *arg)$/;"	f	file:
+takeJob	thr_pool.cc	/^bool ThrPool::takeJob(job_t *j)$/;"	f	class:ThrPool
+~ThrPool	thr_pool.cc	/^ThrPool::~ThrPool()$/;"	f	class:ThrPool
+ThrPool	thr_pool.h	/^class ThrPool$/;"	c
+__THR_POOL__	thr_pool.h	2;"	d
+a	thr_pool.h	/^        void *a; \/\/function arguments$/;"	m	struct:ThrPool::job_t
+addObjJob	thr_pool.h	/^bool ThrPool::addObjJob(C *o, void (C::*m)(A), A a)$/;"	f	class:ThrPool
+attr_	thr_pool.h	/^    pthread_attr_t attr_;$/;"	m	class:ThrPool
+blockadd_	thr_pool.h	/^    bool blockadd_;$/;"	m	class:ThrPool
+f	thr_pool.h	/^        void *(*f)(void *); \/\/function point$/;"	m	struct:ThrPool::job_t
+job_t	thr_pool.h	/^    struct job_t$/;"	s	class:ThrPool
+jobq_	thr_pool.h	/^    fifo<job_t> jobq_;$/;"	m	class:ThrPool
+nthreads_	thr_pool.h	/^    int nthreads_;$/;"	m	class:ThrPool
+th_	thr_pool.h	/^    std::vector<pthread_t> th_;$/;"	m	class:ThrPool

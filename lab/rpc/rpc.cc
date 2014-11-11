@@ -303,7 +303,6 @@ bool rpcc::got_pdu(connection *c, char *b, int sz)
     }
 
     ScopedLock ml(&m_);
-    jsl_log(JSL_DBG_3, "rpcc::got_pdu update_xid_rep xid %u\n", h.xid);
     update_xid_rep(h.xid);
 
     if (calls_.find(h.xid) == calls_.end())

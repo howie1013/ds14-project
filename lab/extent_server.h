@@ -17,8 +17,11 @@ public:
     int get(extent_protocol::extentid_t id, std::string &);
     int getattr(extent_protocol::extentid_t id, extent_protocol::attr &);
     int remove(extent_protocol::extentid_t id, int &);
-};
 
+private:
+	std::map<extent_protocol::extentid_t, std::string> _data;
+	std::map<extent_protocol::extentid_t, extent_protocol::attr> _attr;
+};
 #endif
 
 

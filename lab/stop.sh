@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-YFSDIR1=$PWD/yfs1
-YFSDIR2=$PWD/yfs2
+YFSDIR1=$MOUNTDIR/yfs1
+YFSDIR2=$MOUNTDIR/yfs2
 
 export PATH=$PATH:/usr/local/bin
 UMOUNT="umount"

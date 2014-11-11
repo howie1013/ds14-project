@@ -40,6 +40,11 @@ private:
     static inum n2i(std::string);
 public:
 
+    static inum new_inum(unsigned int isfile)
+    {
+        return ((rand() % 0x7FFFFFFF) | (isfile << 31));
+    }
+
     yfs_client(std::string, std::string);
 
     bool isfile(inum);
@@ -48,6 +53,10 @@ public:
 
     int getfile(inum, fileinfo &);
     int getdir(inum, dirinfo &);
+
+    int lookup(inum p_id, std::string name, inum& id);
+    int readdir(inum id, extent_protocol::filelist&);
+    int createfile(inum p_id, std::string name, inum& id);
 };
 
 #endif

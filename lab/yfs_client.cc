@@ -88,4 +88,93 @@ release:
 }
 
 
+int yfs_client::lookup(inum p_id, std::string name, inum& id)
+{
+    std::string buf;
 
+    if (ec->get(p_id, buf) != extent_protocol::OK)
+    {
+        printf("[error] yfs_client::lookup ec->get(%016llx, buf) failed\n", p_id);
+        return IOERR;
+    }
+
+    extent_protocol::filelist fl;
+    if (extent_protocol::deserialize(buf, fl)) 
+    {
+        foreach(fl, it)
+        {
+            if (it->second == name)
+            {
+                id = it->first;
+                return OK;
+            }
+        }
+        printf("[info] yfs_client::lookup [%016llx] not entry [%s]\n", p_id, name.c_str());
+        return NOENT;
+    }
+    else
+    {
+        printf("[error] yfs_client::lookup [%016llx] deserialize failed\n", p_id);
+    }
+    return IOERR;
+}
+
+int yfs_client::readdir(inum id, extent_protocol::filelist& fl)
+{
+    std::string buf;
+
+    if (ec->get(id, buf) != extent_protocol::OK)
+    {
+        printf("[error] yfs_client::readdir ec->get(%016llx, buf) failed\n", id);
+        return IOERR;
+    }
+
+    if (extent_protocol::deserialize(buf, fl)) 
+    {
+        return OK;
+    }
+    else
+    {
+        printf("[error] yfs_client::lookup [%016llx] deserialize failed\n", id);
+    }
+    return IOERR;
+}
+
+int yfs_client::createfile(inum p_id, std::string name, inum& id)
+{
+    int r;
+    extent_protocol::filelist fl;
+    std::string p_buf;
+    std::string buf;
+
+    r  = lookup(p_id, name, id);
+    if (r == OK)
+    {
+        return OK;
+    }
+    else if (r == NOENT)
+    {
+        
+        r = readdir(p_id, fl);
+        if (r == OK) 
+        {
+            id = new_inum(1);
+
+            fl.push_back(std::make_pair(id, name));
+            p_buf = extent_protocol::serialize(fl);
+            if (ec->put(p_id, p_buf) != extent_protocol::OK)
+            {
+                printf("[error] yfs_client::createfile ec->put(%016llx, p_buf) != extent_protocol::OK\n", p_id);
+                return IOERR;
+            }
+
+            if (ec->put(id, buf) != extent_protocol::OK)
+            {
+                printf("[error] yfs_client::createfile ec->put(%016llx, buf) != extent_protocol::OK\n", id);
+                return IOERR;
+            }
+            return OK;
+        }
+    }
+    return IOERR;
+}

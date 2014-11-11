@@ -16,8 +16,8 @@ YFS1_PORT=$[BASE_PORT+2]
 YFS2_PORT=$[BASE_PORT+4]
 LOCK_PORT=$[BASE_PORT+6]
 
-YFSDIR1=$PWD/yfs1
-YFSDIR2=$PWD/yfs2
+YFSDIR1=$MOUNTDIR/yfs1
+YFSDIR2=$MOUNTDIR/yfs2
 
 if [ "$LOSSY" ]; then
     export RPC_LOSSY=$LOSSY
@@ -66,14 +66,14 @@ sleep 2
 
 # make sure FUSE is mounted where we expect
 pwd=`pwd -P`
-if [ `mount | grep "$pwd/yfs1" | grep -v grep | wc -l` -ne 1 ]; then
+if [ `mount | grep "$MOUNTDIR/yfs1" | grep -v grep | wc -l` -ne 1 ]; then
     sh stop.sh
     echo "Failed to mount YFS properly at ./yfs1"
     exit -1
 fi
 
 # make sure FUSE is mounted where we expect
-if [ `mount | grep "$pwd/yfs2" | grep -v grep | wc -l` -ne 1 ]; then
+if [ `mount | grep "$MOUNTDIR/yfs2" | grep -v grep | wc -l` -ne 1 ]; then
     sh stop.sh
     echo "Failed to mount YFS properly at ./yfs2"
     exit -1

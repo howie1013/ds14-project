@@ -15,7 +15,6 @@ ifeq ($(shell uname -s),Darwin)
 else
 	MACFLAGS=
 endif
-
 LDFLAGS = -L. -L/usr/local/lib
 LDLIBS = -lpthread 
 ifeq ($(LAB2GE),1)
@@ -28,7 +27,6 @@ endif
 else
 LDLIBS += -lfuse
 endif
-
 endif
 LDLIBS += $(shell test -f `gcc -print-file-name=librt.so` && echo -lrt)
 LDLIBS += $(shell test -f `gcc -print-file-name=libdl.so` && echo -ldl)

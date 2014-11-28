@@ -49,7 +49,6 @@ int extent_server::getattr(extent_protocol::extentid_t id, extent_protocol::attr
         return extent_protocol::NOENT;
     }
     a = _attr[id];
-    _attr[id].ctime = cur_sec();
     return extent_protocol::OK;
 }
 

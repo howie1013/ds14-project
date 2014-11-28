@@ -129,7 +129,6 @@ void fuseserver_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr, int t
     {
         printf("   fuseserver_setattr set size to %zu\n", attr->st_size);
         struct stat st;
-        yfs_client::inum inum = ino;
         yfs_client::status ret;
 
         ret = setattr(ino, attr, st);
@@ -198,7 +197,7 @@ yfs_client::status fuseserver_createhelper(fuse_ino_t parent, const char *name,
     e->entry_timeout = 0.0;
     e->generation = 0;
 
-    if ((r = yfs->createfile(parent, name, id)) == yfs_client::OK)
+    if ((r = yfs->createfile(parent, name, id, 1)) == yfs_client::OK)
     {
         if ((r = getattr(id, st)) == yfs_client::OK)
         {
@@ -341,22 +340,35 @@ void fuseserver_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
                       mode_t mode)
 {
     struct fuse_entry_param e;
+    struct stat st;
+    yfs_client::status r;
+    yfs_client::inum id;
 
-    // You fill this in
-#if 0
-    fuse_reply_entry(req, &e);
-#else
-    fuse_reply_err(req, ENOSYS);
-#endif
+    if ((r = yfs->createfile(parent, std::string(name), id, 0)) == yfs_client::OK)
+    {
+        if ((r = getattr(id, st)) == yfs_client::OK)
+        {
+            e.ino = id;
+            e.attr = st;
+            fuse_reply_entry(req, &e);
+        }
+    }
+
+    if (r != yfs_client::OK)
+        fuse_reply_err(req, ENOSYS);
 }
 
 void fuseserver_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
+    yfs_client::status r;
 
-    // You fill this in
-    // Success:   fuse_reply_err(req, 0);
-    // Not found: fuse_reply_err(req, ENOENT);
-    fuse_reply_err(req, ENOSYS);
+    r = yfs->remove(parent, name);
+    if (r == yfs_client::OK)
+        fuse_reply_err(req, 0);
+    else if (r == yfs_client::NOENT)
+        fuse_reply_err(req, ENOENT);
+    else
+        fuse_reply_err(req, ENOSYS);
 }
 
 void fuseserver_statfs(fuse_req_t req)
@@ -396,18 +408,18 @@ int main(int argc, char *argv[])
 
     yfs = new yfs_client(argv[2], argv[3]);
 
-    fuseserver_oper.getattr    = fuseserver_getattr;
-    fuseserver_oper.statfs     = fuseserver_statfs;
-    fuseserver_oper.readdir    = fuseserver_readdir;
-    fuseserver_oper.lookup     = fuseserver_lookup;
-    fuseserver_oper.create     = fuseserver_create;
-    fuseserver_oper.mknod      = fuseserver_mknod;
+    fuseserver_oper.getattr    = fuseserver_getattr;    // done
+    fuseserver_oper.statfs     = fuseserver_statfs;     // done
+    fuseserver_oper.readdir    = fuseserver_readdir;    // done
+    fuseserver_oper.lookup     = fuseserver_lookup;     // done
+    fuseserver_oper.create     = fuseserver_create;     // done
+    fuseserver_oper.mknod      = fuseserver_mknod;      // done
     fuseserver_oper.open       = fuseserver_open;
-    fuseserver_oper.read       = fuseserver_read;
-    fuseserver_oper.write      = fuseserver_write;
-    fuseserver_oper.setattr    = fuseserver_setattr;
-    fuseserver_oper.unlink     = fuseserver_unlink;
-    fuseserver_oper.mkdir      = fuseserver_mkdir;
+    fuseserver_oper.read       = fuseserver_read;       // done
+    fuseserver_oper.write      = fuseserver_write;      // done
+    fuseserver_oper.setattr    = fuseserver_setattr;    // done
+    fuseserver_oper.unlink     = fuseserver_unlink;     // done
+    fuseserver_oper.mkdir      = fuseserver_mkdir;      // done
 
     const char *fuse_argv[20];
     int fuse_argc = 0;

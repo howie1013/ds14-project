@@ -6,10 +6,13 @@
 #include "extent_client.h"
 #include <vector>
 
+#include "lock_protocol.h"
+#include "lock_client.h"
 
 class yfs_client
 {
     extent_client *ec;
+    lock_client *lc;
 public:
 
     typedef unsigned long long inum;
@@ -58,7 +61,9 @@ public:
 
     int lookup(inum p_id, std::string name, inum &id);
     int readdir(inum id, extent_protocol::filelist &);
-    int createfile(inum p_id, std::string name, inum &id);
+    int createfile(inum p_id, std::string name, inum &id, int f);
+    int remove(inum p_id, std::string name);
+    int inner_remove(inum id);
 
     int readfile(inum id, size_t size, size_t off, std::string &rbuf, size_t &bytes_read);
     int writefile(inum id, std::string buf, size_t size, size_t off, size_t &bytes_written);

@@ -22,6 +22,8 @@ public:
 private:
 	std::map<extent_protocol::extentid_t, std::string> _data;
 	std::map<extent_protocol::extentid_t, extent_protocol::attr> _attr;
+
+	time_t cur_sec();
 };
 #endif
 

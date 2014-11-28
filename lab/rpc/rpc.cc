@@ -544,7 +544,7 @@ void rpcs::dispatch(djob_t *j)
         }
 
         // call the method in handler
-        rh.ret = f->fn(req, rep);  
+        rh.ret = f->fn(req, rep);
 
         assert(rh.ret >= 0 ||
                rh.ret == rpc_const::unmarshal_args_failure);
@@ -606,14 +606,14 @@ void rpcs::add_reply(unsigned int clt_nonce, unsigned int xid,
     {
         if (it->xid == xid)
         {
-            it->buf = (char*)malloc(sz);
+            it->buf = (char *)malloc(sz);
             it->sz = sz;
             it->cb_present = true;
             memcpy(it->buf, b, sz);
             break;
         }
     }
-    
+
 }
 
 void rpcs::free_reply_window(void)
@@ -638,7 +638,7 @@ rpcs::rpcstate_t rpcs::checkduplicate_and_update(unsigned int clt_nonce, unsigne
 {
     ScopedLock rwl(&reply_window_m_);
 
-    std::list<reply_t>& reply_list = reply_window_.find(clt_nonce)->second;
+    std::list<reply_t> &reply_list = reply_window_.find(clt_nonce)->second;
 
     for (std::list<reply_t>::iterator it = reply_list.begin(); it != reply_list.end();)
     {
@@ -661,7 +661,7 @@ rpcs::rpcstate_t rpcs::checkduplicate_and_update(unsigned int clt_nonce, unsigne
                 return INPROGRESS;
             }
         }
-        else if(it->xid <= xid_rep)
+        else if (it->xid <= xid_rep)
         {
             free(it->buf);
             reply_list.erase(it++);

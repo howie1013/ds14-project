@@ -57,6 +57,7 @@ lock_client_cache::~lock_client_cache()
     pthread_join(_thread_releaser, (void **)&r);
     for (std::map<lock_protocol::lockid_t, lock_cache>::iterator it = _cache.begin(); it != _cache.end(); ++it)
     {
+        printf("[debug] ~lock_client_cache release %016llx\n", it->first);
         ret = cl->call(lock_protocol::release, id, it->first, r);
         pthread_mutex_destroy(&it->second.mutex);
         pthread_cond_destroy(&it->second.cond);
@@ -74,22 +75,22 @@ void lock_client_cache::releaser()
     // This method should be a continuous loop, waiting to be notified of
     // freed locks that have been revoked by the server, so that it can
     // send a release RPC.
-    int r, ret;
+    int r, ret, skip;
     while (!terminated)
     {
         pthread_mutex_lock(&_mutex_release);
-        while (_list_release.size() == 0)
-            pthread_cond_wait(&_cond_release, &_mutex_release);
-        while (_list_release.size() > 0)
+        pthread_cond_wait(&_cond_release, &_mutex_release);
+        skip = 0;
+        while (_list_release.size() > skip)
         {
             lock_protocol::lockid_t lid = _list_release.front();
+            _list_release.pop_front();
             lock_cache &cache = _cache[lid];
-            //printf("[debug] %s try to release lid:%02d stat:%d\n", id.c_str(), lid, cache.stat);
+            printf("[debug] %s try to release lid:%016llx stat:%d\n", id.c_str(), lid, cache.stat);
             pthread_mutex_lock(&cache.mutex);
             if (cache.stat == FREE)
             {
-                //printf("[debug] releasing %s lid %02d\n", id.c_str(), lid);
-                _list_release.pop_front();
+                printf("[debug] releasing %s lid %016llx\n", id.c_str(), lid);
                 cache.stat = RELEASING;
                 ret = cl->call(lock_protocol::release, id, lid, r);
                 if (ret == lock_protocol::OK)
@@ -97,14 +98,16 @@ void lock_client_cache::releaser()
                     cache.stat = NONE;
                     pthread_cond_signal(&cache.cond_release);
                 }
-                //printf("[debug] released %s lid %02d\n", id.c_str(), lid);
+                printf("[debug] released %s lid %016llx\n", id.c_str(), lid);
             }
             else
             {
-                while (cache.stat != FREE)
-                    pthread_cond_wait(&cache.cond, &cache.mutex);
-            }
-            pthread_mutex_unlock(&cache.mutex);
+                //pthread_mutex_unlock(&cache.mutex);
+                //break;
+                _list_release.push_back(lid);
+                skip++;
+            } 
+            pthread_mutex_unlock(&cache.mutex);   
         }
         pthread_mutex_unlock(&_mutex_release);
     }
@@ -131,9 +134,9 @@ lock_protocol::status lock_client_cache::acquire(lock_protocol::lockid_t lid)
             cache.stat = ACQUIRING;
             while (cache.stat != FREE)
             {
-                //printf("[debug] %s acquiring %02d\n", id.c_str(), lid);
+                printf("[debug] %s acquiring %016llx\n", id.c_str(), lid);
                 ret = cl->call(lock_protocol::acquire, id, lid, r);
-                //printf("[debug] %s acquire %02d ret %d\n", id.c_str(), lid, ret);
+                printf("[debug] %s acquire %016llx ret %d\n", id.c_str(), lid, ret);
                 if (ret == lock_protocol::OK)
                 {
                     cache.stat = FREE;
@@ -154,7 +157,7 @@ lock_protocol::status lock_client_cache::acquire(lock_protocol::lockid_t lid)
 
     if (ret == lock_protocol::OK)
     {
-        //printf("[debug] %s get lock %02d\n", id.c_str(), lid);
+        printf("[debug] %s get lock %016llx\n", id.c_str(), lid);
         cache.stat = LOCKED;
     }
     pthread_mutex_unlock(&cache.mutex);
@@ -165,7 +168,7 @@ lock_protocol::status lock_client_cache::release(lock_protocol::lockid_t lid)
 {
     lock_cache &cache = _cache[lid];
     pthread_mutex_lock(&cache.mutex);
-    //printf("[debug] %s release %02d\n", id.c_str(), lid);
+    printf("[debug] %s release %016llx\n", id.c_str(), lid);
     cache.stat = FREE;
     pthread_cond_signal(&cache.cond);
     pthread_mutex_unlock(&cache.mutex);
@@ -184,7 +187,7 @@ lock_protocol::status lock_client_cache::stat(lock_protocol::lockid_t lid)
 
 rlock_protocol::status lock_client_cache::revoke(lock_protocol::lockid_t lid, int &r)
 {
-    //printf("[debug] %s revoke %02d stat:%d\n", id.c_str(), lid, cache.stat);
+    printf("[debug] %s revoke %016llx stat:%d\n", id.c_str(), lid, _cache[lid].stat);
     pthread_mutex_lock(&_mutex_release);
     _list_release.push_back(lid);
     pthread_cond_signal(&_cond_release);
@@ -195,7 +198,7 @@ rlock_protocol::status lock_client_cache::revoke(lock_protocol::lockid_t lid, in
 rlock_protocol::status lock_client_cache::retry(lock_protocol::lockid_t lid, int &r)
 {
     lock_cache &cache = _cache[lid];
-    //printf("[debug] %s retry %02d stat:%d\n", id.c_str(), lid, cache.stat);
+    printf("[debug] %s retry %016llx stat:%d\n", id.c_str(), lid, cache.stat);
     pthread_mutex_lock(&cache.mutex);
     pthread_cond_signal(&cache.cond_retry);
     pthread_mutex_unlock(&cache.mutex);

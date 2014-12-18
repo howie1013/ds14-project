@@ -19,6 +19,12 @@ yfs_client::yfs_client(std::string extent_dst, std::string lock_dst)
     lc = new lock_client_cache(lock_dst);
 }
 
+yfs_client::~yfs_client()
+{
+    delete ec;
+    delete lc;
+}
+
 yfs_client::inum yfs_client::n2i(std::string n)
 {
     std::istringstream ist(n);
@@ -150,6 +156,7 @@ int yfs_client::createfile(inum p_id, std::string name, inum &id, int f)
     std::string p_buf;
     std::string buf;
 
+    printf("[debug] yfs_client::createfile createfile %s(%016llx)\n", name.c_str(), p_id);
     lc->acquire(p_id);
 
     r  = lookup(p_id, name, id);
@@ -185,6 +192,7 @@ int yfs_client::createfile(inum p_id, std::string name, inum &id, int f)
     }
 
     lc->release(p_id);
+    printf("[debug] yfs_client::createfile createfile %s(%016llx) done\n", name.c_str(), p_id);
     return r;
 }
 
@@ -194,6 +202,7 @@ int yfs_client::remove(inum p_id, std::string name)
     extent_protocol::filelist fl;
     std::string buf;
 
+    printf("[debug] yfs_client::remove remove %s(%016llx)\n", name.c_str(), p_id);
     lc->acquire(p_id);
 
     r = readdir(p_id, fl);
@@ -227,7 +236,7 @@ int yfs_client::remove(inum p_id, std::string name)
     }
 
     lc->release(p_id);
-
+    printf("[debug] yfs_client::remove remove %s(%016llx) done\n", name.c_str(), p_id);
     return r;
 }
 
@@ -236,6 +245,7 @@ int yfs_client::inner_remove(inum id)
     int r = OK;
     extent_protocol::filelist fl;
 
+    printf("[debug] yfs_client::inner_remove inner_remove %016llx\n", id);
     lc->acquire(id);
 
     if (isfile(id))
@@ -253,6 +263,7 @@ int yfs_client::inner_remove(inum id)
                 if (r == OK)
                 {
                     fl.erase(it);
+                    break;
                 }
                 else
                 {
@@ -277,7 +288,7 @@ int yfs_client::inner_remove(inum id)
     }
 
     lc->release(id);
-
+    printf("[debug] yfs_client::inner_remove inner_remove %016llx done\n", id);
     return r;
 }
 
@@ -325,6 +336,7 @@ int yfs_client::readfile(inum id, size_t size, size_t off, std::string &rbuf, si
     extent_protocol::attr a;
     std::string buf;
 
+    printf("[debug] yfs_client::readfile readfile %016llx\n", id);
     lc->acquire(id);
 
     r = ec->getattr(id, a);
@@ -352,6 +364,7 @@ int yfs_client::readfile(inum id, size_t size, size_t off, std::string &rbuf, si
     }
 
     lc->release(id);
+    printf("[debug] yfs_client::readfile readfile %016llx done\n", id);
     return r;
 }
 
@@ -361,6 +374,7 @@ int yfs_client::writefile(inum id, std::string wbuf, size_t size, size_t off, si
     extent_protocol::attr a;
     std::string buf;
 
+    printf("[debug] yfs_client::writefile writefile %016llx\n", id);
     lc->acquire(id);
 
     // get attr
@@ -416,5 +430,6 @@ int yfs_client::writefile(inum id, std::string wbuf, size_t size, size_t off, si
 
     }
     lc->release(id);
+    printf("[debug] yfs_client::writefile writefile %016llx done\n", id);
     return r;
 }

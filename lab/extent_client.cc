@@ -20,6 +20,11 @@ extent_client::extent_client(std::string dst)
     }
 }
 
+extent_client::~extent_client()
+{
+    delete cl;
+}
+
 extent_protocol::status
 extent_client::get(extent_protocol::extentid_t eid, std::string &buf)
 {

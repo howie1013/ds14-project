@@ -39,11 +39,15 @@ private:
     pthread_mutex_t _mutex_cache;
     pthread_mutex_t _mutex_retry;
     pthread_mutex_t _mutex_revoke;
+    pthread_mutex_t _mutex_rpcc;
     pthread_cond_t _cond_retry;
     pthread_cond_t _cond_revoke;
     std::map<lock_protocol::lockid_t, lock_cache> _cache;
     std::list<lock_info> _list_retry;
     std::list<lock_info> _list_revoke;
+    std::map<std::string, rpcc*> _rpcc_pool;
+
+    rpcc* get_rpcc(std::string id);
 public:
     lock_server_cache();
     ~lock_server_cache();

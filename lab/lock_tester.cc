@@ -10,11 +10,12 @@
 #include <vector>
 #include <stdlib.h>
 #include <stdio.h>
+#include "lock_client_cache.h"
 
 // must be >= 2
 int nt = 10; //XXX: lab1's rpc handlers are blocking. Since rpcs uses a thread pool of 10 threads, we cannot test more than 10 blocking rpc.
 std::string dst;
-lock_client **lc = new lock_client *[nt];
+lock_client_cache **lc = new lock_client_cache *[nt];
 lock_protocol::lockid_t a = 1;
 lock_protocol::lockid_t b = 2;
 lock_protocol::lockid_t c = 3;
@@ -54,7 +55,7 @@ void check_release(lock_protocol::lockid_t lid)
 
 void test1(void)
 {
-    printf ("acquire a release a acquire a release a\n");
+    printf ("test1: acquire a release a acquire a release a\n");
     lc[0]->acquire(a);
     check_grant(a);
     lc[0]->release(a);
@@ -64,7 +65,7 @@ void test1(void)
     lc[0]->release(a);
     check_release(a);
 
-    printf ("acquire a acquire b release b release a\n");
+    printf ("test1: acquire a acquire b release b release a\n");
     lc[0]->acquire(a);
     check_grant(a);
     lc[0]->acquire(b);
@@ -78,15 +79,15 @@ void test1(void)
 void *test2(void *x)
 {
     int i = * (int *) x;
-    printf ("test2: client %d acquire a release a\n", i);
+    printf ("test2: client %d(%s) acquire a release a\n", i, lc[i]->get_id().c_str());
     lc[i]->acquire(a);
-    printf ("test2: client %d acquire done\n", i);
+    printf ("test2: client %d(%s) acquire done\n", i, lc[i]->get_id().c_str());
     check_grant(a);
     sleep(1);
-    printf ("test2: client %d release\n", i);
+    printf ("test2: client %d(%s) release\n", i, lc[i]->get_id().c_str());
     check_release(a);
     lc[i]->release(a);
-    printf ("test2: client %d release done\n", i);
+    printf ("test2: client %d(%s) release done\n", i, lc[i]->get_id().c_str());
     return 0;
 }
 
@@ -94,12 +95,12 @@ void *test3(void *x)
 {
     int i = * (int *) x;
 
-    printf ("test3: client %d acquire a release a concurrent\n", i);
+    printf ("test3: client %d(%s) acquire a release a concurrent\n", i,  lc[i]->get_id().c_str());
     for (int j = 0; j < 10; j++)
     {
         lc[i]->acquire(a);
         check_grant(a);
-        printf ("test3: client %d got lock\n", i);
+        printf ("test3: client %d(%s) got lock\n", i, lc[i]->get_id().c_str());
         check_release(a);
         lc[i]->release(a);
     }
@@ -172,9 +173,8 @@ int main(int argc, char *argv[])
 
     assert(pthread_mutex_init(&count_mutex, NULL) == 0);
 
-    printf("simple lock client\n");
-    for (int i = 0; i < nt; i++)
-        lc[i] = new lock_client(dst);
+    printf("cache lock client\n");
+    for (int i = 0; i < nt; i++) lc[i] = new lock_client_cache(dst);
 
     if (!test || test == 1)
     {

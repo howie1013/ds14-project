@@ -8,8 +8,6 @@
 
 class ThrPool
 {
-
-
 public:
     struct job_t
     {
@@ -36,8 +34,8 @@ private:
     bool addJob(void *(*f)(void *), void *a);
 };
 
-template <class C, class A> 
-bool ThrPool::addObjJob(C *o, void (C::*m)(A), A a)
+template <class C, class A> bool
+ThrPool::addObjJob(C *o, void (C::*m)(A), A a)
 {
 
     class objfunc_wrapper

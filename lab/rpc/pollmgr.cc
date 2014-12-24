@@ -17,7 +17,7 @@ void PollMgrInit()
     PollMgr::instance = new PollMgr();
 }
 
-PollMgr * PollMgr::Instance()
+PollMgr *PollMgr::Instance()
 {
     pthread_once(&pollmgr_is_initialized, PollMgrInit);
     return instance;

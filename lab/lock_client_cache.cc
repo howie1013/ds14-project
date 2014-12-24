@@ -93,7 +93,7 @@ void lock_client_cache::releaser()
                 printf("[debug] releasing %s lid %016llx\n", id.c_str(), lid);
                 if (lu != NULL)
                 {
-                  printf("[debug] lu->dorelease %s lid %016llx\n", id.c_str(), lid);
+                    printf("[debug] lu->dorelease %s lid %016llx\n", id.c_str(), lid);
                     lu->dorelease(lid);
                 }
                 cache.stat = RELEASING;

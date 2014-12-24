@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <assert.h>
+
 struct ScopedLock
 {
 private:

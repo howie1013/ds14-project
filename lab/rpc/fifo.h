@@ -74,7 +74,7 @@ bool fifo<T>::enq(T e, bool blocking)
     return true;
 }
 
-template<class T> 
+template<class T>
 void fifo<T>::deq(T *e)
 {
     ScopedLock ml(&m_);

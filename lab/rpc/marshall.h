@@ -79,11 +79,16 @@ public:
     void rawbyte(unsigned char);
     void rawbytes(const char *, int);
 
-    // Return the current contents (including header) as a string
-    const std::string str() const
+    // Return the current content (excluding header) as a string
+    std::string get_content()
     {
-        std::string tmps = std::string(_buf, _ind);
-        return tmps;
+        return std::string(_buf + RPC_HEADER_SZ, _ind - RPC_HEADER_SZ);
+    }
+
+    // Return the current content (excluding header) as a string
+    std::string str()
+    {
+        return get_content();
     }
 
     void pack(int i);
@@ -93,6 +98,7 @@ public:
         int saved_sz = _ind;
         //leave the first 4-byte empty for channel to fill size of pdu
         _ind = sizeof(rpc_sz_t);
+
 #if RPC_CHECKSUMMING
         _ind += sizeof(rpc_checksum_t);
 #endif
@@ -126,6 +132,7 @@ public:
         return;
     }
 };
+
 marshall &operator<<(marshall &, unsigned int);
 marshall &operator<<(marshall &, int);
 marshall &operator<<(marshall &, unsigned char);
@@ -145,12 +152,30 @@ private:
 public:
     unmarshall(): _buf(NULL), _sz(0), _ind(0), _ok(false) {}
     unmarshall(char *b, int sz): _buf(b), _sz(sz), _ind(), _ok(true) {}
+    unmarshall(const std::string &s) : _buf(NULL), _sz(0), _ind(0), _ok(false)
+    {
+        //take the content which does not exclude a RPC header from a string
+        take_content(s);
+    }
     ~unmarshall()
     {
         if (_buf) free(_buf);
     }
+
     //take contents from another unmarshall object
     void take_in(unmarshall &another);
+
+    //take the content which does not exclude a RPC header from a string
+    void take_content(const std::string &s)
+    {
+        _sz = s.size() + RPC_HEADER_SZ;
+        _buf = (char *)realloc(_buf, _sz);
+        assert(_buf);
+        _ind = RPC_HEADER_SZ;
+        memcpy(_buf + _ind, s.data(), s.size());
+        _ok = true;
+    }
+
     bool ok()
     {
         return _ok;
@@ -184,6 +209,7 @@ public:
     {
         //the first 4-byte is for channel to fill size of pdu
         _ind = sizeof(rpc_sz_t);
+
 #if RPC_CHECKSUMMING
         _ind += sizeof(rpc_checksum_t);
 #endif

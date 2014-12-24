@@ -1,11 +1,13 @@
 // RPC test and pseudo-documentation.
 // generates print statements on failures, but eventually says "rpctest OK"
 
+#include "rpc.h"
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+
 
 #include <unistd.h>
 #include <ios>
@@ -86,7 +88,6 @@ void process_mem_usage(double &resident_set)
     resident_set = t_info.resident_size / 1024.0;
 #endif
 }
-
 
 // a handler. a and b are arguments, r is the result.
 // there can be multiple arguments but only one result.
@@ -239,7 +240,7 @@ void *client3(void *xx)
     return 0;
 }
 
-void * client4(void *xx)
+void *client4(void *xx)
 {
     // test garbage collection, view memory consumption.
     double rss, initial, final;

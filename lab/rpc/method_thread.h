@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 static pthread_t method_thread_parent(void *(*fn)(void *), void *arg, bool detach)
 {
     pthread_t th;

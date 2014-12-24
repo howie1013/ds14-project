@@ -4,6 +4,7 @@
 #define extent_protocol_h
 
 #include "rpc.h"
+
 #include "stdio.h"
 
 #define foreach(container,it) \
@@ -34,7 +35,15 @@ public:
         unsigned int size;
     };
 
-    static std::string serialize(filelist& fl)
+    static time_t cur_sec()
+    {
+        timespec now;
+        clock_gettime(CLOCK_REALTIME, &now);
+        return now.tv_sec;
+    }
+
+
+    static std::string serialize(filelist &fl)
     {
         std::string buf;
         unsigned int size = fl.size();
@@ -49,11 +58,11 @@ public:
         return buf;
     }
 
-    static bool deserialize(std::string& buf, filelist& fl)
+    static bool deserialize(std::string &buf, filelist &fl)
     {
-        const char* cbuf = buf.c_str();
+        const char *cbuf = buf.c_str();
         unsigned int size_buf = buf.size();
-        unsigned int size_fl = *(unsigned int*)cbuf;
+        unsigned int size_fl = *(unsigned int *)cbuf;
         unsigned int p = 0;
         unsigned int size_name;
         extentid_t id;
@@ -68,11 +77,11 @@ public:
         p += sizeof(unsigned int);
         for (unsigned int i = 0; i < size_fl; i++)
         {
-            id = *(extentid_t*)(cbuf + p);
+            id = *(extentid_t *)(cbuf + p);
             p += sizeof(extentid_t);
             if (p >= size_buf)
                 return false;
-            size_name = *(unsigned int*)(cbuf + p);
+            size_name = *(unsigned int *)(cbuf + p);
             p += sizeof(unsigned int);
             if (p >= size_buf)
                 return false;
@@ -106,7 +115,5 @@ operator<<(marshall &m, extent_protocol::attr a)
     m << a.size;
     return m;
 }
-
-
 
 #endif

@@ -107,6 +107,7 @@ void *test3(void *x)
     return 0;
 }
 
+
 void *test4(void *x)
 {
     int i = * (int *) x;
@@ -249,5 +250,4 @@ int main(int argc, char *argv[])
     }
 
     printf ("%s: passed all tests successfully\n", argv[0]);
-
 }

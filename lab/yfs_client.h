@@ -8,11 +8,27 @@
 
 #include "lock_protocol.h"
 #include "lock_client.h"
+#include "lock_client_cache.h"
+
+
+class yfs_lock_release_user : public lock_release_user
+{
+private:
+    extent_client *ec;
+public:
+    yfs_lock_release_user(extent_client *ec_) : ec(ec_) {};
+    void dorelease(lock_protocol::lockid_t lid)
+    {
+        ec->flush(lid);
+    }
+};
+
 
 class yfs_client
 {
     extent_client *ec;
     lock_client *lc;
+    lock_release_user *lu;
 public:
 
     typedef unsigned long long inum;
@@ -26,12 +42,14 @@ public:
         unsigned long mtime;
         unsigned long ctime;
     };
+
     struct dirinfo
     {
         unsigned long atime;
         unsigned long mtime;
         unsigned long ctime;
     };
+
     struct dirent
     {
         std::string name;
@@ -57,11 +75,11 @@ public:
 
     int getfile(inum, fileinfo &);
     int getdir(inum, dirinfo &);
-    int setfile(inum, const fileinfo&);
-    int setdir(inum, const dirinfo&);
+    int setfile(inum, const fileinfo &);
+    int setdir(inum, const dirinfo &);
 
-    int lookup(inum p_id, std::string name, inum &id);
-    int readdir(inum id, extent_protocol::filelist &);
+    int lookup(inum p_id, std::string name, inum &id, bool lock = true);
+    int readdir(inum id, extent_protocol::filelist &, bool lock = true);
     int createfile(inum p_id, std::string name, inum &id, int f);
     int remove(inum p_id, std::string name);
     int inner_remove(inum id);

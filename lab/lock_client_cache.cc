@@ -91,6 +91,11 @@ void lock_client_cache::releaser()
             if (cache.stat == FREE)
             {
                 printf("[debug] releasing %s lid %016llx\n", id.c_str(), lid);
+                if (lu != NULL)
+                {
+                  printf("[debug] lu->dorelease %s lid %016llx\n", id.c_str(), lid);
+                    lu->dorelease(lid);
+                }
                 cache.stat = RELEASING;
                 ret = cl->call(lock_protocol::release, id, lid, r);
                 if (ret == lock_protocol::OK)
@@ -106,8 +111,8 @@ void lock_client_cache::releaser()
                 //break;
                 _list_release.push_back(lid);
                 skip++;
-            } 
-            pthread_mutex_unlock(&cache.mutex);   
+            }
+            pthread_mutex_unlock(&cache.mutex);
         }
         pthread_mutex_unlock(&_mutex_release);
     }

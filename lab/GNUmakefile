@@ -1,4 +1,4 @@
-LAB=5
+LAB=6
 SOL=0
 RPC=./rpc
 LAB2GE=$(shell expr $(LAB) \>\= 2)
@@ -9,11 +9,11 @@ LAB7GE=$(shell expr $(LAB) \>\= 7)
 LAB8GE=$(shell expr $(LAB) \>\= 8)
 CXXFLAGS =  -g -MD -Wall -I. -I$(RPC) -DLAB=$(LAB) -DSOL=$(SOL) -D_FILE_OFFSET_BITS=64
 FUSEFLAGS= -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=25 -I/usr/local/include/fuse -I/usr/include/fuse
-
 ifeq ($(shell uname -s),Darwin)
-	MACFLAGS= -D__FreeBSD__=10
+MACFLAGS= -D__FreeBSD__=10
 else
-	MACFLAGS=
+MACFLAGS=
+
 endif
 LDFLAGS = -L. -L/usr/local/lib
 LDLIBS = -lpthread 
@@ -33,7 +33,7 @@ LDLIBS += $(shell test -f `gcc -print-file-name=libdl.so` && echo -ldl)
 CC = g++
 CXX = g++
 
-lab:  lab5
+lab:  lab6
 lab1: rpc/rpctest lock_server lock_tester lock_demo
 lab2: yfs_client extent_server
 lab3: yfs_client extent_server
@@ -66,40 +66,32 @@ lock_demo=lock_demo.cc lock_client.cc
 lock_demo : $(patsubst %.cc,%.o,$(lock_demo)) rpc/librpc.a
 
 lock_tester=lock_tester.cc lock_client.cc
-
 ifeq ($(LAB5GE),1)
-	lock_tester += lock_client_cache.cc
+lock_tester += lock_client_cache.cc
 endif
-
 ifeq ($(LAB8GE),1)
-	lock_tester+=rsm_client.cc
+lock_tester+=rsm_client.cc
 endif
 lock_tester : $(patsubst %.cc,%.o,$(lock_tester)) rpc/librpc.a
 
 lock_server=lock_server.cc lock_smain.cc
-
 ifeq ($(LAB5GE),1)
-	lock_server+=lock_server_cache.cc
+lock_server+=lock_server_cache.cc
 endif
-
 ifeq ($(LAB7GE),1)
-	lock_server+= $(rsm_files)
+lock_server+= $(rsm_files)
 endif
-
 lock_server : $(patsubst %.cc,%.o,$(lock_server)) rpc/librpc.a
 
 yfs_client=yfs_client.cc extent_client.cc fuse.cc
-
 ifeq ($(LAB4GE),1)
-	yfs_client += lock_client.cc
+yfs_client += lock_client.cc
 endif
-
 ifeq ($(LAB8GE),1)
-	yfs_client += rsm_client.cc
+yfs_client += rsm_client.cc
 endif
-
 ifeq ($(LAB5GE),1)
-	yfs_client += lock_client_cache.cc
+yfs_client += lock_client_cache.cc
 endif
 yfs_client : $(patsubst %.cc,%.o,$(yfs_client)) rpc/librpc.a
 
@@ -166,9 +158,9 @@ l5-sol:
 
 
 l6:
-	./mklab.pl 6 0 l6 GNUmakefile test-lab-4-a.pl $(rpclib) $(yfs_client)\
-	 $(extent_server) start.sh stop.sh test-lab-2.pl mkfs.sh\
-	 $(hfiles2) $(test-lab-4-b) $(test-lab-4-c)
+	./mklab.pl 6 0 l6 GNUmakefile test-lab-4-a.pl $(rpclib) $(yfs_client) $(rpctest) $(lock_server)\
+	 $(extent_server) $(lock_server) start.sh stop.sh test-lab-2.pl mkfs.sh\
+	 $(hfiles1) $(hfiles2) $(hfiles3) $(lock_tester) $(test-lab-4-b) $(test-lab-4-c)
 
 l6-sol:
 	./mklab.pl 6 6 l6-sol GNUmakefile test-lab-4-a.pl $(yfs_client) $(rpclib) $(rpctest) $(lock_server)\

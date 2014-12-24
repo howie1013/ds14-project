@@ -16,13 +16,15 @@ yfs_client::yfs_client(std::string extent_dst, std::string lock_dst)
 {
     srand(time(NULL) ^ getpid());
     ec = new extent_client(extent_dst);
-    lc = new lock_client_cache(lock_dst);
+    lu = new yfs_lock_release_user(ec);
+    lc = new lock_client_cache(lock_dst, lu);
 }
 
 yfs_client::~yfs_client()
 {
-    delete ec;
     delete lc;
+    delete lu;
+    delete ec;
 }
 
 yfs_client::inum yfs_client::n2i(std::string n)
@@ -56,6 +58,7 @@ int yfs_client::getfile(inum inum, fileinfo &fin)
 {
     int r = OK;
 
+    lc->acquire(inum);
 
     printf("getfile %016llx\n", inum);
     extent_protocol::attr a;
@@ -72,7 +75,7 @@ int yfs_client::getfile(inum inum, fileinfo &fin)
     printf("getfile %016llx -> sz %llu\n", inum, fin.size);
 
 release:
-
+    lc->release(inum);
     return r;
 }
 
@@ -80,6 +83,7 @@ int yfs_client::getdir(inum inum, dirinfo &din)
 {
     int r = OK;
 
+    lc->acquire(inum);
 
     printf("getdir %016llx\n", inum);
     extent_protocol::attr a;
@@ -93,60 +97,92 @@ int yfs_client::getdir(inum inum, dirinfo &din)
     din.ctime = a.ctime;
 
 release:
+    lc->release(inum);
     return r;
 }
 
 
-int yfs_client::lookup(inum p_id, std::string name, inum &id)
+int yfs_client::lookup(inum p_id, std::string name, inum &id, bool lock)
 {
+    int r = NOENT;
     std::string buf;
-
-    if (ec->get(p_id, buf) != extent_protocol::OK)
-    {
-        printf("[error] yfs_client::lookup ec->get(%016llx, buf) failed\n", p_id);
-        return IOERR;
-    }
-
     extent_protocol::filelist fl;
-    if (extent_protocol::deserialize(buf, fl))
+
+    if (lock)
+        lc->acquire(p_id);
+
+    printf("[debug] yfs_client::lookup %016llx name: %s\n", p_id, name.c_str());
+
+    if (ec->get(p_id, buf) == extent_protocol::OK)
     {
-        foreach(fl, it)
+        if (extent_protocol::deserialize(buf, fl))
         {
-            if (it->second == name)
+            foreach(fl, it)
             {
-                id = it->first;
-                return OK;
+                if (it->second == name)
+                {
+                    id = it->first;
+                    r = OK;
+                }
+            }
+
+            if (r != OK)
+            {
+                printf("[info] yfs_client::lookup [%016llx] not entry [%s]\n", p_id, name.c_str());
+                r = NOENT;
             }
         }
-        printf("[info] yfs_client::lookup [%016llx] not entry [%s]\n", p_id, name.c_str());
-        return NOENT;
+        else
+        {
+            printf("[error] yfs_client::lookup [%016llx] deserialize failed\n", p_id);
+            r = IOERR;
+        }
     }
     else
     {
-        printf("[error] yfs_client::lookup [%016llx] deserialize failed\n", p_id);
+        printf("[error] yfs_client::lookup ec->get(%016llx, buf) failed\n", p_id);
+        r = IOERR;
+
     }
-    return IOERR;
+
+    if (lock)
+        lc->release(p_id);
+    printf("[debug] yfs_client::lookup %016llx name: %s done ret: %d\n", p_id, name.c_str(), r);
+
+    return r;
 }
 
-int yfs_client::readdir(inum id, extent_protocol::filelist &fl)
+int yfs_client::readdir(inum id, extent_protocol::filelist &fl, bool lock)
 {
+    int r;
     std::string buf;
 
-    if (ec->get(id, buf) != extent_protocol::OK)
-    {
-        printf("[error] yfs_client::readdir ec->get(%016llx, buf) failed\n", id);
-        return IOERR;
-    }
 
-    if (extent_protocol::deserialize(buf, fl))
+    if (lock)
+        lc->acquire(id);
+
+    if (ec->get(id, buf) == extent_protocol::OK)
     {
-        return OK;
+        if (extent_protocol::deserialize(buf, fl))
+        {
+            r = OK;
+        }
+        else
+        {
+            printf("[error] yfs_client::lookup [%016llx] deserialize failed\n", id);
+            r = IOERR;
+        }
     }
     else
     {
-        printf("[error] yfs_client::lookup [%016llx] deserialize failed\n", id);
+        printf("[error] yfs_client::readdir ec->get(%016llx, buf) failed\n", id);
+        r = IOERR;
     }
-    return IOERR;
+
+    if (lock)
+        lc->release(id);
+
+    return r;
 }
 
 int yfs_client::createfile(inum p_id, std::string name, inum &id, int f)
@@ -159,10 +195,10 @@ int yfs_client::createfile(inum p_id, std::string name, inum &id, int f)
     printf("[debug] yfs_client::createfile createfile %s(%016llx)\n", name.c_str(), p_id);
     lc->acquire(p_id);
 
-    r  = lookup(p_id, name, id);
+    r  = lookup(p_id, name, id, false);
     if (r == NOENT)
     {
-        r = readdir(p_id, fl);
+        r = readdir(p_id, fl, false);
         if (r == OK)
         {
             id = new_inum(f);
@@ -182,6 +218,8 @@ int yfs_client::createfile(inum p_id, std::string name, inum &id, int f)
                     printf("[error] yfs_client::createfile ec->put(%016llx, buf) != extent_protocol::OK\n", id);
                     r = IOERR;
                 }
+
+
             }
             else
             {
@@ -205,7 +243,7 @@ int yfs_client::remove(inum p_id, std::string name)
     printf("[debug] yfs_client::remove remove %s(%016llx)\n", name.c_str(), p_id);
     lc->acquire(p_id);
 
-    r = readdir(p_id, fl);
+    r = readdir(p_id, fl, false);
     if (r != OK)
     {
         printf("[error] yfs_client::remove readdir(%016llx, id) != extent_protocol::OK(%d)\n", p_id, r);
@@ -254,7 +292,7 @@ int yfs_client::inner_remove(inum id)
     }
     else
     {
-        r = readdir(id, fl);
+        r = readdir(id, fl, false);
         if (r == OK)
         {
             for (extent_protocol::filelist::iterator it = fl.begin(); it != fl.end(); )
@@ -297,19 +335,25 @@ int yfs_client::setfile(inum id, const fileinfo &fin)
     int r;
     extent_protocol::attr a;
 
+    lc->acquire(id);
+
     a.atime = fin.atime;
     a.mtime = fin.mtime;
     a.ctime = fin.ctime;
     a.size = fin.size;
 
     r = ec->setattr(id, a);
-    if (r != extent_protocol::OK)
+    if (r == extent_protocol::OK)
+    {
+        r = OK;
+    }
+    else
     {
         printf("[error] yfs_client::setfile ec->setattr(%016llx, a) failed. err(%d)\n", id, r);
-        return IOERR;
+        r = IOERR;
     }
-
-    return OK;
+    lc->release(id);
+    return r;
 }
 
 int yfs_client::setdir(inum id, const dirinfo &din)
@@ -317,17 +361,25 @@ int yfs_client::setdir(inum id, const dirinfo &din)
     int r;
     extent_protocol::attr a;
 
+    lc->acquire(id);
+
     a.atime = din.atime;
     a.mtime = din.mtime;
     a.ctime = din.ctime;
 
     r = ec->setattr(id, a);
-    if (r != extent_protocol::OK)
+    if (r == extent_protocol::OK)
+    {
+        r = OK;
+    }
+    else
     {
         printf("[error] yfs_client::setdir ec->setattr(%016llx, a) failed. err(%d)\n", id, r);
-        return IOERR;
+        r = IOERR;
     }
-    return OK;
+
+    lc->release(id);
+    return r;
 }
 
 int yfs_client::readfile(inum id, size_t size, size_t off, std::string &rbuf, size_t &bytes_read)

@@ -37,6 +37,7 @@ create1(const char *d, const char *f, const char *in)
 
     sprintf(n, "%s/%s", d, f);
     fd = creat(n, 0666);
+
     if (fd < 0)
     {
         fprintf(stderr, "test-lab-4-b: create(%s): %s\n",
@@ -49,6 +50,7 @@ create1(const char *d, const char *f, const char *in)
                 n, strerror(errno));
         exit(1);
     }
+
     if (close(fd) != 0)
     {
         fprintf(stderr, "test-lab-4-b: close(%s): %s\n",

@@ -270,7 +270,6 @@ void fuseserver_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
         fuse_reply_err(req, ENOENT);
 }
 
-
 struct dirbuf
 {
     char *p;
@@ -459,8 +458,7 @@ int main(int argc, char *argv[])
 
     struct fuse_session *se;
 
-    se = fuse_lowlevel_new(&args, &fuseserver_oper, sizeof(fuseserver_oper),
-                           NULL);
+    se = fuse_lowlevel_new(&args, &fuseserver_oper, sizeof(fuseserver_oper), NULL);
     if (se == 0)
     {
         fprintf(stderr, "fuse_lowlevel_new failed\n");
@@ -477,7 +475,6 @@ int main(int argc, char *argv[])
     fuse_session_add_chan(se, ch);
     // err = fuse_session_loop_mt(se);   // FK: wheelfs does this; why?
     err = fuse_session_loop(se);
-
     fuse_session_destroy(se);
     close(fd);
     fuse_unmount(mountpoint);

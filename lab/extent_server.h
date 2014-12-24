@@ -9,7 +9,6 @@
 
 class extent_server
 {
-
 public:
     extent_server();
 
@@ -20,10 +19,8 @@ public:
     int remove(extent_protocol::extentid_t id, int &);
 
 private:
-	std::map<extent_protocol::extentid_t, std::string> _data;
-	std::map<extent_protocol::extentid_t, extent_protocol::attr> _attr;
-
-	time_t cur_sec();
+    std::map<extent_protocol::extentid_t, std::string> _data;
+    std::map<extent_protocol::extentid_t, extent_protocol::attr> _attr;
 };
 #endif
 

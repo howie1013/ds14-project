@@ -8,6 +8,7 @@
 #include "lock_protocol.h"
 #include "rpc.h"
 #include "lock_client.h"
+
 #include <map>
 
 // Classes that inherit lock_release_user can override dorelease so that
@@ -16,8 +17,8 @@
 class lock_release_user
 {
 public:
-    virtual void dorelease(lock_protocol::lockid_t) = 0;
-    virtual ~lock_release_user() {};
+  virtual void dorelease(lock_protocol::lockid_t) = 0;
+  virtual ~lock_release_user() {};
 };
 
 
@@ -70,61 +71,63 @@ public:
 // has been received.
 //
 
+
 class lock_client_cache : public lock_client
 {
 private:
-    enum status {NONE = -1, FREE = 0, LOCKED, ACQUIRING, RELEASING};
+  enum status {NONE = -1, FREE = 0, LOCKED, ACQUIRING, RELEASING};
 
-    struct lock_cache
+  struct lock_cache
+  {
+    status stat;
+    bool release;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    pthread_cond_t cond_retry;
+    pthread_cond_t cond_release;
+
+    lock_cache()
     {
-        status stat;
-        bool release;
-        pthread_mutex_t mutex;
-        pthread_cond_t cond;
-        pthread_cond_t cond_retry;
-        pthread_cond_t cond_release;
+      stat = NONE;
+      release = false;
+      assert(pthread_mutex_init(&mutex, 0) == 0);
+      assert(pthread_cond_init(&cond, 0) == 0);
+      assert(pthread_cond_init(&cond_retry, 0) == 0);
+      assert(pthread_cond_init(&cond_release, 0) == 0);
 
-        lock_cache()
-        {
-            stat = NONE;
-            release = false;
-            assert(pthread_mutex_init(&mutex, 0) == 0);
-            assert(pthread_cond_init(&cond, 0) == 0);
-            assert(pthread_cond_init(&cond_retry, 0) == 0);
-            assert(pthread_cond_init(&cond_release, 0) == 0);
+    }
+  };
 
-        }
-    };
-
-    bool terminated;
-    pthread_t _thread_releaser;
-    pthread_mutex_t _mutex_cache;
-    pthread_mutex_t _mutex_release;
-    pthread_cond_t _cond_release;
-    std::map<lock_protocol::lockid_t, lock_cache> _cache;
-    std::list<lock_protocol::lockid_t> _list_release;
+  bool terminated;
+  pthread_t _thread_releaser;
+  pthread_mutex_t _mutex_cache;
+  pthread_mutex_t _mutex_release;
+  pthread_cond_t _cond_release;
+  std::map<lock_protocol::lockid_t, lock_cache> _cache;
+  std::list<lock_protocol::lockid_t> _list_release;
 
 
-    class lock_release_user *lu;
-    int rlock_port;
-    std::string hostname;
-    std::string id;
+  class lock_release_user *lu;
+  int rlock_port;
+  std::string hostname;
+  std::string id;
+
 public:
-    static int last_port;
-    lock_client_cache(std::string xdst, class lock_release_user *l = 0);
-    ~lock_client_cache();
-    std::string get_id()
-    {
-        return id;
-    };
+  static int last_port;
+  lock_client_cache(std::string xdst, class lock_release_user *l = 0);
+  ~lock_client_cache();
+  std::string get_id()
+  {
+    return id;
+  };
 
-    lock_protocol::status acquire(lock_protocol::lockid_t);
-    lock_protocol::status release(lock_protocol::lockid_t);
-    lock_protocol::status stat(lock_protocol::lockid_t);
-    rlock_protocol::status revoke(lock_protocol::lockid_t, int &);
-    rlock_protocol::status retry(lock_protocol::lockid_t, int &);
+  lock_protocol::status acquire(lock_protocol::lockid_t);
+  lock_protocol::status release(lock_protocol::lockid_t);
+  lock_protocol::status stat(lock_protocol::lockid_t);
+  rlock_protocol::status revoke(lock_protocol::lockid_t, int &);
+  rlock_protocol::status retry(lock_protocol::lockid_t, int &);
 
-    void releaser();
+  void releaser();
 };
 #endif
 

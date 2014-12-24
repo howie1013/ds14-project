@@ -45,9 +45,9 @@ private:
     std::map<lock_protocol::lockid_t, lock_cache> _cache;
     std::list<lock_info> _list_retry;
     std::list<lock_info> _list_revoke;
-    std::map<std::string, rpcc*> _rpcc_pool;
+    std::map<std::string, rpcc *> _rpcc_pool;
 
-    rpcc* get_rpcc(std::string id);
+    rpcc *get_rpcc(std::string id);
 public:
     lock_server_cache();
     ~lock_server_cache();

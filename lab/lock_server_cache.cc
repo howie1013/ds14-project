@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+
 static void *revokethread(void *x)
 {
     lock_server_cache *sc = (lock_server_cache *) x;
@@ -50,7 +51,7 @@ lock_server_cache::~lock_server_cache()
     pthread_mutex_destroy(&_mutex_rpcc);
     pthread_cond_destroy(&_cond_retry);
     pthread_cond_destroy(&_cond_revoke);
-    for (std::map<std::string, rpcc*>::iterator it = _rpcc_pool.begin(); it != _rpcc_pool.end(); ++it)
+    for (std::map<std::string, rpcc *>::iterator it = _rpcc_pool.begin(); it != _rpcc_pool.end(); ++it)
     {
         delete it->second;
     }
@@ -79,7 +80,7 @@ lock_protocol::status lock_server_cache::acquire(std::string id, lock_protocol::
     printf("[debug] acquire %016llx, id %s stat %d\n", lid, id.c_str(), cache.stat);
     if (cache.stat == FREE && (!cache.retrying || cache.retryer == id))
     {
-       // printf("[debug] grant lock %016llx, id %s, stat %d, pending(%d)\n", lid, id.c_str(), cache.stat, cache.pending.size());
+        // printf("[debug] grant lock %016llx, id %s, stat %d, pending(%d)\n", lid, id.c_str(), cache.stat, cache.pending.size());
         cache.stat = LOCKED;
         cache.owner = id;
         cache.retrying = false;
@@ -163,11 +164,11 @@ void lock_server_cache::revoker()
             _list_revoke.pop_front();
 
             printf("[debug] revoking lid:%016llx id:%s\n", info.lid, info.id.c_str());
-            rpcc* cl = get_rpcc(info.id);
+            rpcc *cl = get_rpcc(info.id);
             if (cl == NULL || (ret = cl->call(rlock_protocol::revoke, info.lid, r)) != rlock_protocol::OK)
             {
                 printf("[error] call revoke error id:%s lid:%016llx\n", info.id.c_str(), info.lid);
-                
+
                 lock_cache &cache = _cache[info.lid];
                 pthread_mutex_lock(&_mutex_cache);
                 cache.stat = FREE;
@@ -211,7 +212,7 @@ void lock_server_cache::retryer()
             cache.retryer = info.id;
             pthread_mutex_unlock(&_mutex_cache);
 
-            rpcc* cl = get_rpcc(info.id);
+            rpcc *cl = get_rpcc(info.id);
             printf("[debug] retrying lid:%016llx id:%s\n", info.lid, info.id.c_str());
             if (cl == NULL || (ret = cl->call(rlock_protocol::retry, info.lid, r)) != rlock_protocol::OK)
             {
@@ -227,7 +228,7 @@ void lock_server_cache::retryer()
     }
 }
 
-rpcc* lock_server_cache::get_rpcc(std::string id)
+rpcc *lock_server_cache::get_rpcc(std::string id)
 {
     rpcc *cl = NULL;
     pthread_mutex_lock(&_mutex_rpcc);

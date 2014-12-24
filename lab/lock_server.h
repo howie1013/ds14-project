@@ -15,12 +15,12 @@
 class lock_server
 {
 public:
-	static const int MAX_LOCK = 256;
+    static const int MAX_LOCK = 256;
 
 protected:
     int nacquire;
-	//pthread_mutex_t _locks_m[MAX_LOCK];
-	pthread_mutex_t _m;
+    //pthread_mutex_t _locks_m[MAX_LOCK];
+    pthread_mutex_t _m;
     std::map<lock_protocol::lockid_t, pthread_mutex_t> _locks_m;
 
 public:

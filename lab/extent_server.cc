@@ -9,12 +9,12 @@
 #include <fcntl.h>
 
 
-extent_server::extent_server() 
+
+extent_server::extent_server()
 {
-    
     extent_protocol::filelist fl, fl1;
 
-    time_t now = cur_sec();
+    time_t now = extent_protocol::cur_sec();
     _attr[1].atime = now;
     _attr[1].mtime = now;
     _attr[1].ctime = now;
@@ -24,7 +24,7 @@ extent_server::extent_server()
 
 int extent_server::put(extent_protocol::extentid_t id, std::string buf, int &)
 {
-    time_t now = cur_sec();
+    time_t now = extent_protocol::cur_sec();
     _attr[id].mtime = now;
     _attr[id].ctime = now;
     _data[id] = buf;
@@ -38,7 +38,7 @@ int extent_server::get(extent_protocol::extentid_t id, std::string &buf)
         return extent_protocol::NOENT;
     }
     buf = _data[id];
-    _attr[id].atime = cur_sec();
+    _attr[id].atime = extent_protocol::cur_sec();
     return extent_protocol::OK;
 }
 
@@ -55,7 +55,7 @@ int extent_server::getattr(extent_protocol::extentid_t id, extent_protocol::attr
 int extent_server::setattr(extent_protocol::extentid_t id, extent_protocol::attr a, int &r)
 {
     _attr[id] = a;
-    _attr[id].ctime = cur_sec();
+    _attr[id].ctime = extent_protocol::cur_sec();
     return extent_protocol::OK;
 }
 
@@ -68,11 +68,4 @@ int extent_server::remove(extent_protocol::extentid_t id, int &)
     _attr.erase(_attr.find(id));
     _data.erase(_data.find(id));
     return extent_protocol::OK;
-}
-
-time_t extent_server::cur_sec()
-{
-    timespec now;
-    clock_gettime(CLOCK_REALTIME, &now);
-    return now.tv_sec;
 }

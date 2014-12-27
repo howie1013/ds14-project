@@ -222,7 +222,7 @@ rsm::join(std::string m)
         return false;
     }
     printf("rsm::join: succeeded %s\n", r.log.c_str());
-    cfg->restore(r.log);
+    cfg->restore(r.log);    // restore log from primary
     return true;
 }
 
@@ -235,10 +235,14 @@ rsm::join(std::string m)
 void
 rsm::commit_change()
 {
+    printf("[debug] rsm::commit_change\n");
     pthread_mutex_lock(&rsm_mutex);
     // Lab 7:
     // - If I am not part of the new view, start recovery
+    set_primary();  // update primary
+    pthread_cond_signal(&recovery_cond);
     pthread_mutex_unlock(&rsm_mutex);
+    printf("[debug] rsm::commit_change done\n");
 }
 
 
@@ -319,8 +323,26 @@ rsm::joinreq(std::string m, viewstamp last, rsm_protocol::joinres &r)
     else
     {
         // Lab 7: invoke config to create a new view that contains m
+        bool ok;
+
+        assert (pthread_mutex_unlock(&rsm_mutex) == 0);
+        ok = cfg->add(m);
+        assert (pthread_mutex_lock(&rsm_mutex) == 0);
+
+        printf("[debug] rsm::joinreq node(%s) cfg->add = %d\n", m.c_str(), ok);
+        if (ok)
+        {
+            r.log = cfg->dump();
+            ret = rsm_protocol::OK;
+        }
+        else
+        {
+            ret = rsm_test_protocol::ERR;
+        }
+
     }
     assert (pthread_mutex_unlock(&rsm_mutex) == 0);
+    printf("[debug] rsm::joinreq done\n");
     return ret;
 }
 

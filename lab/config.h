@@ -29,7 +29,7 @@ private:
     paxos_protocol::status heartbeat(std::string m, unsigned instance, int &r);
     std::string value(std::vector<std::string> mems);
     std::vector<std::string> members(std::string v);
-    std::vector<std::string> get_view(unsigned instance);
+    std::vector<std::string> get_view(unsigned instance);   // acc->value(instance)
     bool remove_wo(std::string);
     void reconstruct();
     typedef enum

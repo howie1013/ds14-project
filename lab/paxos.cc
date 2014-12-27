@@ -86,6 +86,7 @@ void
 proposer::setn()
 {
     my_n.n = acc->get_n_h().n + 1 > my_n.n + 1 ? acc->get_n_h().n + 1 : my_n.n + 1;
+    my_n.m = me;
 }
 
 bool
@@ -106,11 +107,23 @@ proposer::run(int instance, std::vector<std::string> newnodes, std::string newv)
         pthread_mutex_unlock(&pxs_mutex);
         return false;
     }
+
+
+
     setn();
     accepts.clear();
     nodes.clear();
     v.clear();
+
+    stable = false;         // make stable false
+    c_nodes = newnodes;     // c_nodes
+    c_v = newv;             // c_v
     nodes = c_nodes;
+    v = c_v;
+
+    printf("[debug] proposer::run instance = %d\n", instance);
+    printf("[debug] proposer::run number of nodes = %d\n", nodes.size());
+
     if (prepare(instance, accepts, nodes, v))
     {
 
@@ -162,7 +175,61 @@ proposer::prepare(unsigned instance, std::vector<std::string> &accepts,
                   std::vector<std::string> nodes,
                   std::string &v)
 {
-    return false;
+    prop_t n;
+    paxos_protocol::preparearg a;
+    paxos_protocol::prepareres r;
+
+    n.n = 0;
+    n.m = me;
+
+    a.instance = instance;
+    a.n = my_n;
+    a.v = v;
+
+    for (int i = 0; i < nodes.size(); i++)
+    {
+        handle h(nodes[i]);
+        rpcc* cl = h.get_rpcc();
+        if (cl != NULL)
+        {
+            printf("[debug] proposer::prepare node(%s) preparereq v = %s\n", nodes[i].c_str(), a.v.c_str());
+            if (cl->call(paxos_protocol::preparereq, me, a, r, rpcc::to(1000)) == paxos_protocol::OK)
+            {
+                // node instance is behind, commit the old value(recovery from replica)
+                if (r.oldinstance && r.v_a.size() > 0)
+                {
+                    printf("[debug]proposer::prepare node(%s) oldinstance r.v_a = %d\n", nodes[i].c_str(), r.v_a.c_str());
+                    acc->commit(instance, r.v_a);
+                    return false;
+                }
+
+                // node accept, get the highest prop
+                if (r.accept)
+                {
+                    accepts.push_back(nodes[i]);
+                    printf("[debug] proposer::prepare node(%s) accept r.n_a.n = %d r.n_a.v = %s\n", nodes[i].c_str(), r.n_a.n, r.v_a.c_str());
+                    if (r.n_a > n)
+                    {
+                        n = r.n_a;
+                        v = r.v_a;  // highest v from nodes
+                    }
+                }
+                else
+                {
+                    printf("[error] proposer::prepare node(%s) r.accept = 0\n", nodes[i].c_str());
+                }
+            }
+            else
+            {
+                printf("[error] proposer::prepare node(%s) rpcc error\n", nodes[i].c_str());
+            }
+        }
+        else
+        {
+            printf("[error] proposer::prepare node(%s) h.get_rpcc() == NULL\n", nodes[i].c_str());
+        }
+    }
+    return true;
 }
 
 
@@ -170,12 +237,74 @@ void
 proposer::accept(unsigned instance, std::vector<std::string> &accepts,
                  std::vector<std::string> nodes, std::string v)
 {
+    paxos_protocol::acceptarg a;
+    int r;
+
+    a.instance = instance;
+    a.n = my_n;
+    a.v = v;
+
+    for (int i = 0; i < nodes.size(); i++)
+    {
+        handle h(nodes[i]);
+        rpcc* cl = h.get_rpcc();
+        if (cl != NULL)
+        {
+            printf("[debug] proposer::accept node(%s) acceptreq v = %s\n", nodes[i].c_str(), a.v.c_str());
+            if (cl->call(paxos_protocol::acceptreq, me, a, r) == paxos_protocol::OK)
+            {
+                if (r)
+                {
+                    accepts.push_back(nodes[i]);
+                }
+                else
+                {
+                    printf("[error] proposer::accept node(%s) ret = 0\n", nodes[i].c_str());
+                }
+            }
+            else
+            {
+                printf("[error] proposer::accept node(%s) rpcc error\n", nodes[i].c_str());
+            }
+        }
+        else
+        {
+            printf("[error] proposer::accept node(%s) h.get_rpcc() == NULL\n", nodes[i].c_str());
+        }
+    }
 }
 
 void
 proposer::decide(unsigned instance, std::vector<std::string> accepts,
                  std::string v)
 {
+    paxos_protocol::decidearg a;
+    int r;
+
+    a.instance = instance;
+    a.v = v;
+
+    for (int i = 0; i < accepts.size(); i++)
+    {
+        handle h(accepts[i]);
+        rpcc* cl = h.get_rpcc();
+        if (cl != NULL)
+        {
+            printf("[debug] proposer::decide node(%s) decidereq v = %s\n", accepts[i].c_str(), a.v.c_str());
+            if (cl->call(paxos_protocol::decidereq, me, a, r) == paxos_protocol::OK)
+            {
+                printf("[debug] proposer::decide node(%s) ret = %d\n", accepts[i].c_str(), r);
+            }
+            else
+            {
+                printf("[error] proposer::decide node(%s) rpcc error\n", accepts[i].c_str());
+            }
+        }
+        else
+        {
+            printf("[error] proposer::decide node(%s) h.get_rpcc() == NULL\n", accepts[i].c_str());
+        }
+    }
 }
 
 acceptor::acceptor(class paxos_change *_cfg, bool _first, std::string _me,
@@ -210,6 +339,23 @@ acceptor::preparereq(std::string src, paxos_protocol::preparearg a,
                      paxos_protocol::prepareres &r)
 {
     // handle a preparereq message from proposer
+    printf("[debug] acceptor::preparereq a.instance = %d instance_h = %d\n", a.instance, instance_h);
+    if (a.instance <= instance_h)
+    {
+        r.oldinstance = 1;
+        r.accept = 0;
+        r.v_a = value(a.instance);
+    }
+    else if (a.n > n_h)     // check highest prop n_h, must greater than n_h
+    {
+        
+        r.oldinstance = 0;
+        r.accept = 1;
+        n_h = a.n;          // update n_h, highest prop has seen
+        l->loghigh(n_h);
+        r.n_a = n_a;
+        r.v_a = v_a;
+    }
     return paxos_protocol::OK;
 
 }
@@ -217,18 +363,35 @@ acceptor::preparereq(std::string src, paxos_protocol::preparearg a,
 paxos_protocol::status
 acceptor::acceptreq(std::string src, paxos_protocol::acceptarg a, int &r)
 {
-
     // handle an acceptreq message from proposer
-
+    if (a.n >= n_h)     // check highest prop n_h, greater or equal(crashed after prepare_ok) 
+    {
+        r = 1;
+        n_a = a.n;      // update n_a, highest prop has accepted
+        v_a = a.v;      // update v_a, highest value has accepted
+        l->logprop(n_a, v_a);
+    }
+    else
+    {
+        r = 0;
+    }
     return paxos_protocol::OK;
 }
 
 paxos_protocol::status
 acceptor::decidereq(std::string src, paxos_protocol::decidearg a, int &r)
 {
-
     // handle an decide message from proposer
-
+    if (a.instance <= instance_h)
+    {
+        printf("[info] acceptor::decidereq a.instance <= instance_h\n");
+        r = 0;
+    }
+    else
+    {
+        r = 1;
+        commit(a.instance, a.v);
+    }
     return paxos_protocol::OK;
 }
 
